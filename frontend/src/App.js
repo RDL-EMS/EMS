@@ -30,11 +30,16 @@ function App() {
     <Router>
       <ToastContainer />
       <Routes>
-        <Route path="/" element={<EmployeeLogin />} />
+        <Route path="/login" element={<EmployeeLogin />} />
         <Route path="/dashboard" element={<ProtectedLayout><EmployeeDashboard /></ProtectedLayout>} />
         <Route path="/leave-history" element={<ProtectedLayout><EmployeeLeaveHistory /></ProtectedLayout>} />
         <Route path="/change-password" element={<ProtectedLayout><EmployeeChangePassword /></ProtectedLayout>} />
         <Route path="/attendance-history" element={<ProtectedLayout><EmployeeAttendanceHistory /></ProtectedLayout>} />
+         
+
+
+
+  
       </Routes>
     </Router>
   );
