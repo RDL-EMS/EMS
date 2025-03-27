@@ -1,23 +1,36 @@
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Box } from "@mui/material";
+
+// ✅ Employee Components
 import EmployeeLogin from "./components/Employee/EmployeeLogin";
 import EmployeeDashboard from "./components/Employee/EmployeeDashboard";
 import EmployeeLeaveHistory from "./components/Employee/EmployeeLeaveHistory";
 import EmployeeChangePassword from "./components/Employee/EmployeeChangePassword";
 import EmployeeAttendanceHistory from "./components/Employee/EmployeeAttendanceHistory";
-import Sidebar from "./components/Employee/EmployeeSidebar";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import EmployeeSidebar from "./components/Employee/EmployeeSidebar";
 
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// ✅ CSO/Admin Components
+import Home from "./pages/Home";
+import CSOPanel from "./Auth/CSOPanel";
+import CSODashboard from "./components/Dashboard/CSODashboard";
+import Attendance from "./pages/Attendance";
+import TimeBook from "./pages/TimeBook";
+import Sidebar from "./components/Layout/Sidebar";
+import Header from "./components/Layout/Header";
 
-
+// ✅ Employee Authentication Check
 const isAuthenticated = () => {
   return !!localStorage.getItem("token");
 };
 
-const ProtectedLayout = ({ children }) => {
+// ✅ Protected Layout for Employees (With Sidebar)
+const EmployeeProtectedLayout = ({ children }) => {
   return isAuthenticated() ? (
     <div style={{ display: "flex" }}>
-      <Sidebar />
+      <EmployeeSidebar />
       <div style={{ flex: 1, padding: "20px" }}>{children}</div>
     </div>
   ) : (
@@ -25,24 +38,43 @@ const ProtectedLayout = ({ children }) => {
   );
 };
 
-function App() {
+// ✅ Main App Component
+const App = () => {
+  const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // ✅ Hide Sidebar & Header on login and home page
+  const hideLayout = location.pathname === "/cso" || location.pathname === "/";
+
   return (
-    <Router>
-      <ToastContainer />
-      <Routes>
-        <Route path="/login" element={<EmployeeLogin />} />
-        <Route path="/dashboard" element={<ProtectedLayout><EmployeeDashboard /></ProtectedLayout>} />
-        <Route path="/leave-history" element={<ProtectedLayout><EmployeeLeaveHistory /></ProtectedLayout>} />
-        <Route path="/change-password" element={<ProtectedLayout><EmployeeChangePassword /></ProtectedLayout>} />
-        <Route path="/attendance-history" element={<ProtectedLayout><EmployeeAttendanceHistory /></ProtectedLayout>} />
-         
+    <Box sx={{ display: "flex" }}>
+      {!hideLayout && <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />}
 
+      <Box sx={{ flexGrow: 1, ml: hideLayout ? 0 : isSidebarOpen ? "250px" : "60px", transition: "margin 0.3s ease-in-out" }}>
+        {!hideLayout && <Header />}
 
+        <ToastContainer />
 
-  
-      </Routes>
-    </Router>
+        <Box sx={{ mt: hideLayout ? 0 : 8, p: 3 }}>
+          <Routes>
+            {/* ✅ Common Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/cso" element={<CSOPanel />} />
+            <Route path="/cso-dashboard" element={<CSODashboard />} />
+            <Route path="/attendance" element={<Attendance />} />
+            <Route path="/time-book" element={<TimeBook />} />
+
+            {/* ✅ Employee Routes (Protected) */}
+            <Route path="/employee-login" element={<EmployeeLogin />} />
+            <Route path="/dashboard" element={<EmployeeProtectedLayout><EmployeeDashboard /></EmployeeProtectedLayout>} />
+            <Route path="/leave-history" element={<EmployeeProtectedLayout><EmployeeLeaveHistory /></EmployeeProtectedLayout>} />
+            <Route path="/change-password" element={<EmployeeProtectedLayout><EmployeeChangePassword /></EmployeeProtectedLayout>} />
+            <Route path="/attendance-history" element={<EmployeeProtectedLayout><EmployeeAttendanceHistory /></EmployeeProtectedLayout>} />
+          </Routes>
+        </Box>
+      </Box>
+    </Box>
   );
-}
+};
 
 export default App;
