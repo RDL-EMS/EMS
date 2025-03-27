@@ -1,11 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom"; // ✅ Ensure Router is used only once
+import { BrowserRouter as Router } from "react-router-dom"; // ✅ Ensure Router is used only once
 import App from "./App";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
+
 root.render(
-  <BrowserRouter>  {/* ✅ Router should be here, not in App.js */}
-    <App />
-  </BrowserRouter>
+  <React.StrictMode> {/* ✅ Helps detect potential issues in development */}
+    <Router> {/* ✅ Keep Router only here, not in App.js */}
+      <App />
+    </Router>
+  </React.StrictMode>
 );
