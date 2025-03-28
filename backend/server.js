@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const morgan = require("morgan"); // ✅ Logging middleware
+const morgan = require("morgan"); 
 const connectDB = require("./config/db");
 
 // ✅ Load environment variables
@@ -40,9 +40,12 @@ app.post("/api/login", (req, res) => {
   }
 });
 
+
 // ✅ Attendance API Route
 
 app.use("/api/attendance", require("./routes/attendanceRoutes"));
+
+// ✅ Attendance API Routes Integration
 
 const attendanceRoutes = require("./routes/attendanceRoutes");
 app.use("/api/attendance", attendanceRoutes);

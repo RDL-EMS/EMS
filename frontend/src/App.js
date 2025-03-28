@@ -1,11 +1,5 @@
-<
-import React from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 import React, { useState } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Box } from "@mui/material";
@@ -27,21 +21,18 @@ import CSOPanel from "./Auth/CSOPanel";
 import CSODashboard from "./components/Dashboard/CSODashboard";
 import AttendancePage from "./pages/Attendance1";
 import TimeBook from "./pages/TimeBook";
+import Attendance from "./pages/Attendance";
 
-import EmployeeLogin from "./components/Employee/EmployeeLogin";
-import EmployeeDashboard from "./components/Employee/EmployeeDashboard";
-import EmployeeSidebar from "./components/Employee/EmployeeSidebar";
-
+// ✅ Layout Components
 import Sidebar from "./components/Layout/Sidebar";
-import Navbar from "./components/Layout/Navbar";
 import Header from "./components/Layout/Header";
 
+// ✅ Employee Authentication Check
+const isAuthenticated = () => {
+  return !!localStorage.getItem("token");
+};
 
-
-// ✅ Authentication Check
-const isAuthenticated = () => !!localStorage.getItem("token");
-
-// ✅ Layout for Employee (Separate Sidebar)
+// ✅ Protected Layout for Employees (With Sidebar)
 const EmployeeProtectedLayout = ({ children }) => {
   return isAuthenticated() ? (
     <div style={{ display: "flex" }}>
@@ -53,47 +44,38 @@ const EmployeeProtectedLayout = ({ children }) => {
   );
 };
 
+// ✅ Main App Component
 const App = () => {
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // ✅ Hide Sidebar & Header on login and home page
+  const hideLayout = location.pathname === "/cso" || location.pathname === "/";
 
   return (
-
-    <>
-      <ToastContainer />
-      
-      <Routes>
-        {/* ✅ Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/cso" element={<CSOPanel />} />
-        <Route path="/employee-login" element={<EmployeeLogin />} />
-
-        {/* ✅ CSO/Admin Routes (Sidebar in CSODashboard) */}
-        <Route path="/cso-dashboard" element={<CSODashboard />} />
-        <Route path="/attendance" element={<Attendance />} />
-        <Route path="/time-book" element={<TimeBook />} />
-
-        {/* ✅ Employee Routes */}
-        <Route path="/dashboard" element={<EmployeeProtectedLayout><EmployeeDashboard /></EmployeeProtectedLayout>} />
-      </Routes>
-      
-    </>
-=======
     <AttendanceProvider>
-      <Box sx={{ display: "flex", backgroundColor: "#0b1f3a", minHeight: "100vh" }}>
-        {!hideLayout && <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />}
+      <Box sx={{ display: "flex", minHeight: "100vh" }}>
+        
+        {/* ✅ Sidebar (Visible unless on Login/Home Page) */}
+        {!hideLayout && <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />}
 
+        {/* ✅ Main Content Section */}
         <Box sx={{ flexGrow: 1, ml: hideLayout ? 0 : isSidebarOpen ? "250px" : "60px", transition: "margin 0.3s ease-in-out" }}>
-          {!hideLayout && <Navbar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />}
+          
+          {/* ✅ Header (Visible unless on Login/Home Page) */}
           {!hideLayout && <Header />}
-
+          
+          {/* ✅ Toast Notifications */}
           <ToastContainer />
 
-          <Box sx={{ mt: hideLayout ? 0 : 8, p: 3 }}>
+          {/* ✅ Routes */}
+          <Box sx={{ p: 3 }}>
             <Routes>
               {/* ✅ Common Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/cso" element={<CSOPanel />} />
               <Route path="/cso-dashboard" element={<CSODashboard />} />
+              <Route path="/attendance" element={<Attendance />} />
               <Route path="/attendance" element={<AttendancePage />} />
               <Route path="/time-book" element={<TimeBook />} />
 
@@ -105,10 +87,10 @@ const App = () => {
               <Route path="/attendance-history" element={<EmployeeProtectedLayout><EmployeeAttendanceHistory /></EmployeeProtectedLayout>} />
             </Routes>
           </Box>
+
         </Box>
       </Box>
     </AttendanceProvider>
-
   );
 };
 

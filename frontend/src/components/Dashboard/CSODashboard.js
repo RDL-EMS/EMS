@@ -44,7 +44,7 @@ const CSODashboard = () => {
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       {/* ✅ Main Content Area */}
-      <Box sx={{ flexGrow: 1, ml: isSidebarOpen ? "250px" : "60px", transition: "margin 0.3s ease-in-out" }}>
+      <Box sx={{ flexGrow: 1, ml: 3, transition: "margin 0.3s ease-in-out" }}>
         <Header />
         <Box sx={{ mt: 8, p: 3 }}>
           {/* Summary Cards */}
