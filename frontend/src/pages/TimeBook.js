@@ -3,14 +3,13 @@ import {
   Box, Typography, TextField, Button, Paper, Table, TableHead, TableRow, 
   TableCell, TableBody 
 } from "@mui/material";
-import Header from "../components/Layout/Header";
-import axios from "axios"; // ✅ Import axios for API requests
+import axios from "axios";
+import Layout from "../components/Layout/Layout"; // ✅ Import Layout
 
 const TimeBook = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [attendanceData, setAttendanceData] = useState([]);
 
-  // ✅ Fetch Attendance Data from API
   useEffect(() => {
     const fetchAttendanceData = async () => {
       try {
@@ -18,27 +17,25 @@ const TimeBook = () => {
         setAttendanceData(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("Error fetching attendance data:", error);
-        setAttendanceData([]); // ✅ Prevents crash if API fails
+        setAttendanceData([]); 
       }
     };
 
     fetchAttendanceData();
   }, []);
 
-  // ✅ Filter Data by Employee ID
   const filteredData = attendanceData.filter((entry) =>
     entry.empId?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <Box sx={{ height: "100vh", bgcolor: "#e8eaf6" }}> {/* ✅ Background color added */}
-      <Header />
-      <Box sx={{ p: 3, maxWidth: "80%", margin: "auto" }}> {/* ✅ Centered Content */}
-        <Typography variant="body2" sx={{ mb: 2 }}>
+    <Layout> {/* ✅ Wrap inside Layout */}
+      <Box sx={{ bgcolor: "#e8eaf6", minHeight: "100vh", p: 7 }}>
+        <Typography variant="body2" sx={{ mb: 5 }}>
           Home / <b>Time-book</b>
         </Typography>
 
-        {/* ✅ Search Bar Positioned at the Top */}
+        {/* Search Bar */}
         <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
           <Typography variant="h6">Search Employee Attendance History</Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 2 }}>
@@ -49,13 +46,11 @@ const TimeBook = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Button variant="contained" color="primary">
-              Search
-            </Button>
+            <Button variant="contained" color="primary">Search</Button>
           </Box>
         </Paper>
 
-        {/* ✅ Attendance Table */}
+        {/* Attendance Table */}
         <Typography variant="h6" sx={{ mb: 2 }}>
           Employee Attendance History
         </Typography>
@@ -94,7 +89,7 @@ const TimeBook = () => {
           </TableBody>
         </Table>
       </Box>
-    </Box>
+    </Layout>
   );
 };
 
