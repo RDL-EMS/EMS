@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Typography, Card, CardContent, Grid, Avatar, Box } from "@mui/material";
 
 const portals = [
-  { title: "HR Portal", color: "rgba(255, 138, 128, 0.9)", path: "/hr" },
-  { title: "Employee Portal", color: "rgba(129, 199, 132, 0.9)", path: "/employee-login" },
+  { title: "HR Portal", color: "rgba(100, 181, 246, 0.9)", path: "/hr" },
+  { title: "Employee Portal", color: "rgba(100, 181, 246, 0.9)", path: "/employee-login" },
   { title: "CSO Portal", color: "rgba(100, 181, 246, 0.9)", path: "/cso" },
 ];
 
@@ -32,9 +32,9 @@ const Home = () => {
           p: 3,
           textAlign: "center",
           borderRadius: 3,
-          backgroundColor: "rgba(255, 255, 255, 0.2)", 
+          backgroundColor: "rgba(58, 48, 48, 0.2)", 
           backdropFilter: "blur(10px)", 
-          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.2)",
+          boxShadow: "0 10px 30px rgba(104, 124, 141, 0.2)",
         }}
       >
         {/* Logo */}
