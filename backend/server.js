@@ -41,12 +41,12 @@ app.post("/api/login", (req, res) => {
 });
 
 // ✅ Attendance API Route
-<<<<<<< HEAD
+
 app.use("/api/attendance", require("./routes/attendanceRoutes"));
-=======
+
 const attendanceRoutes = require("./routes/attendanceRoutes");
 app.use("/api/attendance", attendanceRoutes);
->>>>>>> 84bf82bdeddeaeb8405841b3861b706fbe73fd10
+
 
 // ✅ Leave API Route (Fixes 404 error)
 app.use("/api/leave", require("./routes/leaveRoutes"));
