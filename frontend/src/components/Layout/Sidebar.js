@@ -3,11 +3,16 @@ import { Box, Typography, Divider, IconButton, Tooltip, Button } from "@mui/mate
 import { Menu, Dashboard, Book, AccessTime, ChevronLeft, Logout } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 
-const Sidebar = ({ isOpen, setIsOpen }) => {
+const Sidebar = ({ isOpen, setIsOpen }) => { // ✅ Make sure setIsOpen is received
+
   const navigate = useNavigate();
 
   const toggleSidebar = () => {
-    setIsOpen(!isOpen);
+    if (typeof setIsOpen === "function") { // ✅ Ensure it's a function
+      setIsOpen(!isOpen);
+    } else {
+      console.error("setIsOpen is not a function");
+    }
   };
 
   const handleLogout = () => {
@@ -27,8 +32,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        zIndex: 1300, // Ensure sidebar is above content
-        top: 0, // Align with header
+        zIndex: 1300,
+        top: 0,
         left: 0,
       }}
     >
@@ -77,7 +82,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   );
 };
 
-// Sidebar Item Component
 const SidebarItem = ({ icon, label, to, isOpen }) => (
   <Tooltip title={!isOpen ? label : ""} placement="right">
     <Box
