@@ -37,8 +37,11 @@ app.post("/api/login", (req, res) => {
   }
 });
 
-// ✅ Attendance API Route (Fixes 404 issue)
+// ✅ Attendance API Route
 app.use("/api/attendance", require("./routes/attendanceRoutes"));
+
+// ✅ Leave API Route (Fixes 404 error)
+app.use("/api/leave", require("./routes/leaveRoutes"));
 
 // ✅ Global Error Handling Middleware
 app.use((err, req, res, next) => {
