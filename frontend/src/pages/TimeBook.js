@@ -50,7 +50,7 @@ const TimeBook = () => {
 
   return (
     <Layout> 
-      <Box sx={{ bgcolor: "#e8eaf6", minHeight: "100vh", p: 7, ml: -30 }}> 
+      <Box sx={{ bgcolor: "#e8eaf6", minHeight: "100vh", p: 7, ml: -20 }}> 
         <Typography variant="body2" sx={{ mb: 7 }}>
           Home / <b>Time-book</b>
         </Typography>
