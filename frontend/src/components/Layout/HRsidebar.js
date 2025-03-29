@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Drawer,
   List,
@@ -19,26 +18,26 @@ import {
   CheckCircle,
   Report,
   Home,
+  History,
+  BarChart,
 } from "@mui/icons-material";
 
 const drawerWidth = 250;
 
 const SidebarItems = [
-  { text: "Dashboard", icon: <Dashboard />, route: "/hr/dashboard" },
-  { text: "Department", icon: <Business />, route: "/department" },
-  { text: "Leave", icon: <Event />, route: "/leave" },
-  { text: "Leave Request", icon: <CheckCircle />, route: "/leave-request" },
-  { text: "Employee", icon: <Person />, route: "/AddEmployeeForm" }, 
-  { text: "Payroll", icon: <MonetizationOn />, route: "/payroll" },
-  { text: "Attendance List", icon: <CheckCircle />, route: "/hr/attendance-list" },
-  { text: "Attendance History", icon: <Report />, route: "/hr/attendance-history" },
-  { text: "Attendance Report", icon: <Report />, route: "/hr/attendance-report" },
-  { text: "Home Page", icon: <Home />, route: "/" },
+  { text: "Dashboard", icon: <Dashboard />, key: "dashboard" },
+  { text: "Department", icon: <Business />, key: "department" },
+  { text: "Leave", icon: <Event />, key: "leave" },
+  { text: "Leave Request", icon: <CheckCircle />, key: "leaveRequest" },
+  { text: "Employee", icon: <Person />, key: "employee" },
+  { text: "Payroll", icon: <MonetizationOn />, key: "payroll" },
+  { text: "Attendance List", icon: <CheckCircle />, key: "attendanceList" },
+  { text: "Attendance History", icon: <History />, key: "attendanceHistory" },
+  { text: "Attendance Report", icon: <BarChart />, key: "attendanceReport" },
+  { text: "Home Page", icon: <Home />, key: "home" },
 ];
 
-const HRSidebar = ({ sidebarOpen }) => {
-  const navigate = useNavigate();
-
+const HRSidebar = ({ sidebarOpen, setSidebarOpen, selectedSection, setSelectedSection }) => {
   return (
     <Drawer
       variant="permanent"
@@ -57,7 +56,7 @@ const HRSidebar = ({ sidebarOpen }) => {
     >
       <Toolbar>
         <ListItemText
-          primary="Admin Panel"
+          primary="HR Panel"
           sx={{
             color: "white",
             textAlign: "center",
@@ -70,10 +69,11 @@ const HRSidebar = ({ sidebarOpen }) => {
         {SidebarItems.map((item, index) => (
           <ListItem key={index} disablePadding>
             <ListItemButton
-              onClick={() => navigate(item.route)}
+              onClick={() => setSelectedSection(item.key)}
               sx={{
                 color: "white",
-                "&:hover": { background: "#33354A" },
+                background: selectedSection === item.key ? "#33354A" : "inherit",
+                "&:hover": { background: "#44475A" },
               }}
             >
               <ListItemIcon sx={{ color: "white" }}>{item.icon}</ListItemIcon>

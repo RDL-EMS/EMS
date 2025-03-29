@@ -6,7 +6,7 @@ import {
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material"; // ✅ Import Icons
 import HRNav from "../Layout/HRNav.js";
-import HRSidebar from "../Layout/HRsidebar.js";
+import HRSidebar from "../Layout/HRSidebar.js";
 import axios from "axios";
 
 const API_URL = "http://localhost:5000/api/employees";

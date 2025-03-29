@@ -20,7 +20,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Add, Close, Delete, Edit } from "@mui/icons-material";
-import AddAttendanceForm from "./AddAttendanceForm"; // Import the form component
+import AddAttendanceForm from "./AddAttendanceForm"; // Ensure correct import
 
 const AttendanceList = () => {
   const [open, setOpen] = useState(false);
@@ -145,7 +145,7 @@ const AttendanceList = () => {
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          <AddAttendanceForm onClose={handleClose} />
+          <AddAttendanceForm onClose={handleClose} fetchAttendance={fetchAttendance} />
         </DialogContent>
       </Dialog>
     </Box>
