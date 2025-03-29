@@ -1,22 +1,20 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
-// ✅ Load environment variables
 dotenv.config();
 
-// ✅ Database connection function
+export const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/employee_management_system";
+
 export const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
+    await mongoose.connect(MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    console.log("✅ MongoDB Connected Successfully!");
   } catch (error) {
-    console.error(`❌ Database Connection Error: ${error.message}`);
+    console.error("❌ MongoDB Connection Failed:", error.message);
     process.exit(1);
   }
 };
-
-// ✅ Export PORT from .env or use 5000 as default
-export const PORT = process.env.PORT || 5000;

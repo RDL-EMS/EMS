@@ -3,12 +3,11 @@ import { Box, Typography, Divider, IconButton, Tooltip, Button } from "@mui/mate
 import { Menu, Dashboard, Book, AccessTime, ChevronLeft, Logout } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 
-const Sidebar = ({ isOpen, setIsOpen }) => { // ✅ Make sure setIsOpen is received
-
+const Sidebar = ({ isOpen, setIsOpen }) => { // ✅ Ensure setIsOpen is received
   const navigate = useNavigate();
 
   const toggleSidebar = () => {
-    if (typeof setIsOpen === "function") { // ✅ Ensure it's a function
+    if (typeof setIsOpen === "function") { // ✅ Prevent errors if setIsOpen is undefined
       setIsOpen(!isOpen);
     } else {
       console.error("setIsOpen is not a function");
@@ -63,7 +62,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => { // ✅ Make sure setIsOpen is recei
       <Box sx={{ flexGrow: 1, p: 1 }}>
         <SidebarItem icon={<Dashboard />} label="Dashboard" to="/cso-dashboard" isOpen={isOpen} />
         <SidebarItem icon={<Book />} label="Time Book" to="/time-book" isOpen={isOpen} />
-        <SidebarItem icon={<AccessTime />} label="Attendance" to="/attendance" isOpen={isOpen} />
+        <SidebarItem icon={<AccessTime />} label="Attendance" to="/cso/attendance" isOpen={isOpen} />
       </Box>
 
       {/* Logout Button */}
