@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-// Check if the model already exists to prevent OverwriteModelError
-const Employee = mongoose.models.Employee || mongoose.model("Employee", new mongoose.Schema({
+const EmployeeSchema = new mongoose.Schema({
   EMPiD: { type: String, required: true },
   Name: { type: String, required: true },
   Joindate: { type: String, required: true },
@@ -10,6 +9,11 @@ const Employee = mongoose.models.Employee || mongoose.model("Employee", new mong
   Contact: { type: String, required: true },
   Profile: { type: String, required: true },
   Role: { type: String, required: true },
-}, { timestamps: true }));
+});
 
-export default Employee;
+// Ensure unique Email index
+EmployeeSchema.index({ Email: 1 }, { unique: true });
+
+const Employee = mongoose.model("Employee", EmployeeSchema);
+export default Employee;  // ✅ Ensure this line is present
+

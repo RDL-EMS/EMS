@@ -86,7 +86,8 @@ const Attendance = ({ onAttendanceUpdate }) => {
 
   return (
     <Layout>
-      <Box sx={{ p: 6, ml: -30, transition: "all 0.3s ease-in-out" }}>
+      <Box sx={{ p: 4, ml: -30, transition: "all 0.3s ease-in-out" }}>
+
         <Typography variant="h5" sx={{ mb: 2 }}>
           Employee Attendance
         </Typography>

@@ -1,8 +1,10 @@
-const Attendance = require('../models/attendanceModel');
-const Employee = require('../models/Employee');
+import Employee from "../models/Employee.js";  
+import Attendance from "../models/attendanceModel.js";
+
+
 
 // ✅ Mark Attendance
-exports.markAttendance = async (req, res) => {
+export const markAttendance = async (req, res) => {
   try {
     const { employeeId, status, date, timeIn, timeOut } = req.body;
 
@@ -17,7 +19,7 @@ exports.markAttendance = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Employee not found' });
     }
 
-    // ✅ Convert date to start and end of the day (fixes duplicate check)
+    // ✅ Convert date to start and end of the day
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(date);
@@ -53,10 +55,10 @@ exports.markAttendance = async (req, res) => {
 };
 
 // ✅ Get All Attendance Records
-exports.getAllAttendance = async (req, res) => {
+export const getAllAttendance = async (req, res) => {
   try {
     const attendance = await Attendance.find()
-      .populate('employee', 'firstName lastName email') // ✅ Ensure correct Employee fields
+      .populate('employee', 'firstName lastName email')
       .lean();
 
     console.log('✅ Retrieved Attendance Records:', attendance.length);
@@ -68,11 +70,10 @@ exports.getAllAttendance = async (req, res) => {
 };
 
 // ✅ Get Attendance for a Specific Employee
-exports.getEmployeeAttendance = async (req, res) => {
+export const getEmployeeAttendance = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // ✅ Validate Employee ID
     const attendance = await Attendance.find({ employee: id })
       .populate('employee', 'firstName lastName email')
       .lean();
@@ -90,16 +91,14 @@ exports.getEmployeeAttendance = async (req, res) => {
 };
 
 // ✅ Update Attendance Record
-exports.updateAttendance = async (req, res) => {
+export const updateAttendance = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // ✅ Ensure timeOut > timeIn when updating
     if (req.body.timeIn && req.body.timeOut && req.body.timeOut <= req.body.timeIn) {
       return res.status(400).json({ success: false, message: 'Time-out must be after Time-in' });
     }
 
-    // ✅ Update Attendance with Validation
     const updatedAttendance = await Attendance.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
     if (!updatedAttendance) {
       return res.status(404).json({ success: false, message: 'Attendance not found' });
@@ -114,11 +113,10 @@ exports.updateAttendance = async (req, res) => {
 };
 
 // ✅ Delete Attendance Record
-exports.deleteAttendance = async (req, res) => {
+export const deleteAttendance = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // ✅ Delete Attendance Entry
     const deletedAttendance = await Attendance.findByIdAndDelete(id);
     if (!deletedAttendance) {
       return res.status(404).json({ success: false, message: 'Attendance not found' });

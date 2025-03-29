@@ -1,5 +1,6 @@
-const express = require("express");
-const Leave = require("../models/Leave"); // Import Leave Model
+import express from "express";
+import Leave from "../models/Leave.js"; // ✅ Ensure correct ES module import
+
 const router = express.Router();
 
 // ✅ Submit Leave Application (POST)
@@ -7,17 +8,14 @@ router.post("/", async (req, res) => {
   try {
     const { leaveType, fromDate, toDate, description } = req.body;
 
-    // Validate fields
     if (!leaveType || !fromDate || !toDate || !description) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    // Ensure toDate is after fromDate
     if (new Date(toDate) < new Date(fromDate)) {
       return res.status(400).json({ error: "To Date should be after From Date" });
     }
 
-    // Create a new leave application
     const newLeave = new Leave({ leaveType, fromDate, toDate, description });
     await newLeave.save();
 
@@ -37,5 +35,5 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ Export the router
-module.exports = router;
+// ✅ Use ES6 export
+export default router;

@@ -1,14 +1,14 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const AttendanceSchema = new mongoose.Schema({
   employee: { 
     type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Employee', 
+    ref: 'Employee',
     required: true 
   },
   date: { 
     type: Date, 
-    required: true, // ✅ Ensure date is always required
+    required: true,
     default: Date.now 
   },
   timeIn: { 
@@ -17,11 +17,11 @@ const AttendanceSchema = new mongoose.Schema({
   },
   timeOut: { 
     type: Date,
-    default: null, // ✅ Allows timeOut to be optional
+    default: null,
     validate: {
       validator: function(value) {
-        if (!value) return true; // ✅ Allows timeOut to be null
-        return value > this.timeIn; // ✅ Ensures timeOut > timeIn
+        if (!value) return true;
+        return value > this.timeIn;
       },
       message: 'Time-out must be after Time-in'
     }
@@ -33,6 +33,6 @@ const AttendanceSchema = new mongoose.Schema({
   }
 });
 
-// ✅ Create & Export Attendance Model
+// ✅ Use ES Module export
 const Attendance = mongoose.model('Attendance', AttendanceSchema);
-module.exports = Attendance;
+export default Attendance;

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Typography, Card, CardContent, Grid, Avatar, Box } from "@mui/material";
 
 const portals = [
-  { title: "HR Portal", color: "rgba(100, 181, 246, 0.9)", path: "/hr" },
+  { title: "HR Portal", color: "rgba(100, 181, 246, 0.9)", path: "/HRDashboard" },
   { title: "Employee Portal", color: "rgba(100, 181, 246, 0.9)", path: "/employee-login" },
   { title: "CSO Portal", color: "rgba(100, 181, 246, 0.9)", path: "/cso" },
 ];
