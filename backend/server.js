@@ -18,7 +18,7 @@ mongoose
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((error) => console.error("🚨 MongoDB Connection Error:", error));
 
-// Attendance Schema
+// 📌 Attendance Schema
 const AttendanceSchema = new mongoose.Schema({
   employeeId: String,
   status: String,
@@ -28,7 +28,48 @@ const AttendanceSchema = new mongoose.Schema({
 
 const AttendanceModel = mongoose.model("Attendance", AttendanceSchema);
 
-// API to fetch attendance summary
+// 📌 User Schema (For Authentication)
+const UserSchema = new mongoose.Schema({
+  username: String,
+  password: String, // Store hashed passwords in a real application
+});
+
+const UserModel = mongoose.model("User", UserSchema);
+
+// 📌 Ensure Admin User Exists
+const ensureAdminUser = async () => {
+  const existingAdmin = await UserModel.findOne({ username: "admin" });
+  if (!existingAdmin) {
+    await UserModel.create({ username: "admin", password: "123456" });
+    console.log("✅ Admin user created (username: admin, password: 123456)");
+  }
+};
+
+ensureAdminUser();
+
+// 📌 Login API
+app.post("/api/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ message: "Please provide username and password." });
+    }
+
+    // Check if user exists
+    const user = await UserModel.findOne({ username });
+    if (!user || user.password !== password) {
+      return res.status(401).json({ message: "Invalid username or password" });
+    }
+
+    res.json({ message: "Login successful" });
+  } catch (error) {
+    console.error("🚨 Login Error:", error);
+    res.status(500).json({ message: "Server Error", error });
+  }
+});
+
+// 📌 Attendance Summary API
 app.get("/api/attendance-summary", async (req, res) => {
   try {
     const totalEmployees = await AttendanceModel.distinct("employeeId").count();
