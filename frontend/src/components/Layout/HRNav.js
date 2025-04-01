@@ -5,12 +5,12 @@ import { Menu as MenuIcon, Notifications, AccountCircle } from "@mui/icons-mater
 const HRNav = ({ handleSidebarToggle }) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleProfileMenuClose = () => {
+  const handleProfileMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleProfileMenuClose = () => setAnchorEl(null);
+  const handleLogout = () => {
     setAnchorEl(null);
+    console.log("Logging out...");
+    // Implement logout functionality here
   };
 
   return (
@@ -20,7 +20,7 @@ const HRNav = ({ handleSidebarToggle }) => {
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Admin Dashboard
+          HR Dashboard
         </Typography>
         <IconButton color="inherit">
           <Notifications />
@@ -31,7 +31,7 @@ const HRNav = ({ handleSidebarToggle }) => {
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleProfileMenuClose}>
           <MenuItem onClick={handleProfileMenuClose}>Edit Profile</MenuItem>
           <MenuItem onClick={handleProfileMenuClose}>Change Password</MenuItem>
-          <MenuItem onClick={() => console.log("Logging out...")}>Logout</MenuItem>
+          <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>

@@ -1,19 +1,29 @@
 import mongoose from "mongoose";
 
 const EmployeeSchema = new mongoose.Schema({
-  EMPiD: { type: String, required: true },
-  Name: { type: String, required: true },
-  Joindate: { type: String, required: true },
-  Address: { type: String, required: true },
-  Email: { type: String, required: true, unique: true },
-  Contact: { type: String, required: true },
-  Profile: { type: String, required: true },
-  Role: { type: String, required: true },
+  employeeId: { 
+    type: String, 
+    required: true, 
+    unique: true, 
+    match: /^[a-zA-Z0-9_-]+$/ // ✅ Ensures only letters, numbers, underscores, and hyphens
+  },
+  name: { type: String, required: true },
+  joinDate: { type: String, required: true },
+  address: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  contact: { 
+    type: String, 
+    required: true, 
+    match: /^[0-9]+$/ // ✅ Ensures only digits for phone numbers
+  },
+  profile: { type: String, required: true },
+  role: { type: String, required: true },
 });
 
-// Ensure unique Email index
-EmployeeSchema.index({ Email: 1 }, { unique: true });
+// ✅ Ensure unique Email index
+EmployeeSchema.index({ email: 1 }, { unique: true });
 
-const Employee = mongoose.model("Employee", EmployeeSchema);
-export default Employee;  // ✅ Ensure this line is present
+// ✅ Use existing model if already compiled
+const Employee = mongoose.models.Employee || mongoose.model("Employee", EmployeeSchema);
 
+export default Employee;

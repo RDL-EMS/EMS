@@ -1,83 +1,112 @@
 import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import morgan from "morgan";
 import mongoose from "mongoose";
-import { connectDB, PORT } from "./config/db.js"; // ✅ Ensure correct import
-
-import employeeRoutes from "./routes/employeeRoutes.js";
-import attendanceRoutes from "./routes/attendanceRoutes.js"; // ✅ Use ES6 import
-
-import leaveRoutes from "./routes/leaveRoutes.js";
- 
-
-
-// ✅ Load environment variables
-dotenv.config();
-
-// ✅ Connect to MongoDB
-connectDB();
+import cors from "cors";
 
 const app = express();
+const PORT = 5000;
 
-// ✅ Middleware
-app.use(express.json());
+// Middleware
 app.use(cors());
-app.use(morgan("dev")); // ✅ Logs incoming requests
+app.use(express.json());
 
-// ✅ Static admin credentials
-const adminCredentials = {
-  username: "admin",
-  password: "123456",
-};
+// Connect to MongoDB
+mongoose
+  .connect("mongodb://127.0.0.1:27017/employee_management_system", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((error) => console.error("🚨 MongoDB Connection Error:", error));
 
-// ✅ Base Route
-app.get("/", (req, res) => {
-  res.status(200).json({ message: "🚀 Employee Management System API is running!" });
+// 📌 Attendance Schema
+const AttendanceSchema = new mongoose.Schema({
+  employeeId: String,
+  status: String,
+  date: Date,
+  month: String,
 });
 
-// ✅ Authentication Route
-app.post("/api/login", (req, res) => {
-  const { username, password } = req.body;
+const AttendanceModel = mongoose.model("Attendance", AttendanceSchema);
 
-  if (username === adminCredentials.username && password === adminCredentials.password) {
-    return res.status(200).json({ success: true, message: "Login Successful" });
-  } else {
-    return res.status(401).json({ success: false, message: "Invalid Credentials" });
+// 📌 User Schema (For Authentication)
+const UserSchema = new mongoose.Schema({
+  username: String,
+  password: String, // Store hashed passwords in a real application
+});
+
+const UserModel = mongoose.model("User", UserSchema);
+
+// 📌 Ensure Admin User Exists
+const ensureAdminUser = async () => {
+  const existingAdmin = await UserModel.findOne({ username: "admin" });
+  if (!existingAdmin) {
+    await UserModel.create({ username: "admin", password: "123456" });
+    console.log("✅ Admin user created (username: admin, password: 123456)");
+  }
+};
+
+ensureAdminUser();
+
+// 📌 Login API
+app.post("/api/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ message: "Please provide username and password." });
+    }
+
+    // Check if user exists
+    const user = await UserModel.findOne({ username });
+    if (!user || user.password !== password) {
+      return res.status(401).json({ message: "Invalid username or password" });
+    }
+
+    res.json({ message: "Login successful" });
+  } catch (error) {
+    console.error("🚨 Login Error:", error);
+    res.status(500).json({ message: "Server Error", error });
   }
 });
 
-// ✅ API Routes
-app.use("/api/employees", employeeRoutes);
-app.use("/api/attendance", attendanceRoutes);
-app.use("/api/leave", leaveRoutes);
+// 📌 Attendance Summary API
+app.get("/api/attendance-summary", async (req, res) => {
+  try {
+    const totalEmployees = await AttendanceModel.distinct("employeeId").count();
+    const monthlyData = await AttendanceModel.aggregate([
+      {
+        $group: {
+          _id: "$month",
+          present: { $sum: { $cond: [{ $eq: ["$status", "Present"] }, 1, 0] } },
+          absent: { $sum: { $cond: [{ $eq: ["$status", "Absent"] }, 1, 0] } },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
 
-// ✅ Global Error Handling Middleware
-app.use((err, req, res, next) => {
-  console.error("❌ Server Error:", err.message);
-  res.status(500).json({ success: false, message: "Internal Server Error" });
+    const todayDate = new Date().toISOString().split("T")[0];
+    const todayData = await AttendanceModel.aggregate([
+      { $match: { date: { $gte: new Date(todayDate) } } },
+      {
+        $group: {
+          _id: "$status",
+          value: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const formattedTodayData = todayData.map((item) => ({
+      name: item._id,
+      value: item.value,
+      color: item._id === "Present" ? "#1976D2" : "#D32F2F",
+    }));
+
+    res.json({ totalEmployees, monthly: monthlyData, today: formattedTodayData });
+  } catch (error) {
+    console.error("🚨 Error fetching attendance summary:", error);
+    res.status(500).json({ message: "Server Error", error });
+  }
 });
 
-// ✅ Start Server
-const port = PORT || 5000;
-const server = app.listen(port, () => {
-  console.log(`🚀 Server running on port ${port}`);
-});
-
-// ✅ Graceful Shutdown Handling
-process.on("SIGINT", async () => {
-  console.log("⚠️ Closing server and database connection...");
-  await mongoose.connection.close();
-  server.close(() => process.exit(0));
-});
-
-// ✅ Handle Uncaught Exceptions & Rejections
-process.on("uncaughtException", (err) => {
-  console.error("⚠️ Uncaught Exception:", err);
-  process.exit(1);
-});
-
-process.on("unhandledRejection", (err) => {
-  console.error("⚠️ Unhandled Rejection:", err);
-  process.exit(1);
-});
+// Start Server
+app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
