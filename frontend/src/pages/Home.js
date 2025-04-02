@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Typography, Card, CardContent, Grid, Avatar, Box } from "@mui/material";
 
 const portals = [
-  { title: "HR Portal", color: "rgba(100, 181, 246, 0.9)", path: "/HRDashboard" },
+  { title: "HR Portal", color: "rgba(100, 181, 246, 0.9)", path: "/hr-dashboard" }, 
   { title: "Employee Portal", color: "rgba(100, 181, 246, 0.9)", path: "/employee-login" },
   { title: "CSO Portal", color: "rgba(100, 181, 246, 0.9)", path: "/cso" },
 ];
@@ -32,8 +32,8 @@ const Home = () => {
           p: 3,
           textAlign: "center",
           borderRadius: 3,
-          backgroundColor: "rgba(58, 48, 48, 0.2)", 
-          backdropFilter: "blur(10px)", 
+          backgroundColor: "rgba(58, 48, 48, 0.2)",
+          backdropFilter: "blur(10px)",
           boxShadow: "0 10px 30px rgba(104, 124, 141, 0.2)",
         }}
       >
@@ -67,7 +67,10 @@ const Home = () => {
                   "&:hover": { transform: "scale(1.05)" },
                   borderRadius: 2,
                 }}
-                onClick={() => navigate(portal.path)}
+                onClick={() => {
+                  console.log(`Navigating to: ${portal.path}`); // ✅ Debug Navigation
+                  navigate(portal.path);
+                }}
               >
                 <CardContent sx={{ padding: "6px" }}>
                   <Typography variant="subtitle2">{portal.title}</Typography>
@@ -81,4 +84,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Home;

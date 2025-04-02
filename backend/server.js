@@ -25,7 +25,6 @@ const AttendanceSchema = new mongoose.Schema({
   date: Date,
   month: String,
 });
-
 const AttendanceModel = mongoose.model("Attendance", AttendanceSchema);
 
 // 📌 User Schema (For Authentication)
@@ -33,8 +32,14 @@ const UserSchema = new mongoose.Schema({
   username: String,
   password: String, // Store hashed passwords in a real application
 });
-
 const UserModel = mongoose.model("User", UserSchema);
+
+// 📌 Department Schema
+const DepartmentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  status: { type: String, enum: ["Active", "Inactive"], default: "Active" },
+});
+const DepartmentModel = mongoose.model("Department", DepartmentSchema);
 
 // 📌 Ensure Admin User Exists
 const ensureAdminUser = async () => {
@@ -44,14 +49,12 @@ const ensureAdminUser = async () => {
     console.log("✅ Admin user created (username: admin, password: 123456)");
   }
 };
-
 ensureAdminUser();
 
 // 📌 Login API
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
-
     if (!username || !password) {
       return res.status(400).json({ message: "Please provide username and password." });
     }
@@ -105,6 +108,61 @@ app.get("/api/attendance-summary", async (req, res) => {
   } catch (error) {
     console.error("🚨 Error fetching attendance summary:", error);
     res.status(500).json({ message: "Server Error", error });
+  }
+});
+
+// 📌 Department Management APIs
+
+// ✅ Get All Departments
+app.get("/api/departments", async (req, res) => {
+  try {
+    const departments = await DepartmentModel.find();
+    res.json(departments);
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ✅ Add a New Department
+app.post("/api/departments", async (req, res) => {
+  try {
+    const { name, status } = req.body;
+    if (!name) return res.status(400).json({ error: "Department name is required" });
+
+    const newDepartment = new DepartmentModel({ name, status });
+    await newDepartment.save();
+
+    res.status(201).json(newDepartment);
+  } catch (error) {
+    res.status(500).json({ error: "Error adding department" });
+  }
+});
+
+// ✅ Update Department
+app.put("/api/departments/:id", async (req, res) => {
+  try {
+    const { name, status } = req.body;
+    const updatedDepartment = await DepartmentModel.findByIdAndUpdate(
+      req.params.id,
+      { name, status },
+      { new: true }
+    );
+
+    if (!updatedDepartment) return res.status(404).json({ error: "Department not found" });
+
+    res.json(updatedDepartment);
+  } catch (error) {
+    res.status(500).json({ error: "Error updating department" });
+  }
+});
+
+// ✅ Delete a Department
+app.delete("/api/departments/:id", async (req, res) => {
+  try {
+    await DepartmentModel.findByIdAndDelete(req.params.id);
+    res.json({ message: "Department deleted" });
+  } catch (error) {
+    res.status(500).json({ error: "Error deleting department" });
   }
 });
 

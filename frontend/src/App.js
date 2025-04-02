@@ -3,14 +3,13 @@ import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// ✅ CSO Components
+// ✅ Import Pages
 import Home from "./pages/Home";
 import CSOPanel from "./Auth/CSOPanel";
 import CSODashboard from "./components/Dashboard/CSODashboard";
-import CSOAttendance from "./pages/Attendance"; // ✅ CSO Attendance
+import CSOAttendance from "./pages/Attendance"; 
 import TimeBook from "./pages/TimeBook";
 
-// ✅ Employee Components
 import EmployeeLogin from "./components/Employee/EmployeeLogin";
 import EmployeeDashboard from "./components/Employee/EmployeeDashboard";
 import EmployeeLeaveHistory from "./components/Employee/EmployeeLeaveHistory";
@@ -20,15 +19,17 @@ import EmployeeAttendanceHistory from "./components/Employee/EmployeeAttendanceH
 // ✅ HR Components
 import HRDashboard from "./components/Dashboard/HRDashboard";
 import AddEmployeeForm from "./components/HRPanel/AddEmployeeForm";
+import DepartmentPage from "./components/HRPanel/Department"; // ✅ Added Department Page
 
-// ✅ Attendance Management Components for HR
+// ✅ Attendance Management (HR)
 import AddAttendanceForm from "./components/Attendance/AddAttendanceForm";
 import AttendanceHistory from "./components/Attendance/AttendanceHistory";
 import AttendanceList from "./components/Attendance/AttendanceList";
 import AttendanceReport from "./components/Attendance/AttendanceReport";
 
-// ✅ Layouts (Protected Routes)
+// ✅ Layouts
 import CSOProtectedLayout from "./components/Layout/CSOProtectedLayout";
+import HRProtectedLayout from "./components/Layout/HRProtectedLayout";  
 import EmployeeProtectedLayout from "./components/Layout/EmployeeProtectedLayout";
 
 const App = () => {
@@ -40,7 +41,7 @@ const App = () => {
         <Route path="/cso" element={<CSOPanel />} />
         <Route path="/employee-login" element={<EmployeeLogin />} />
 
-        {/* ✅ CSO/Admin Routes (Protected) */}
+        {/* ✅ CSO Routes (Protected) */}
         <Route
           path="/cso-dashboard"
           element={
@@ -66,7 +67,67 @@ const App = () => {
           }
         />
 
-        {/* ✅ Employee Routes (Protected) */}
+        {/* ✅ HR Routes (Protected) */}
+        <Route
+          path="/hr-dashboard"
+          element={
+            <HRProtectedLayout>  
+              <HRDashboard />
+            </HRProtectedLayout>
+          }
+        />
+        <Route
+          path="/hr/add-employee"
+          element={
+            <HRProtectedLayout>
+              <AddEmployeeForm />
+            </HRProtectedLayout>
+          }
+        />
+        <Route
+          path="/hr/department"
+          element={
+            <HRProtectedLayout>
+              <DepartmentPage />
+            </HRProtectedLayout>
+          }
+        />
+
+        {/* ✅ HR Attendance Management */}
+        <Route
+          path="/hr/attendance-list"
+          element={
+            <HRProtectedLayout>
+              <AttendanceList />
+            </HRProtectedLayout>
+          }
+        />
+        <Route
+          path="/hr/attendance-history"
+          element={
+            <HRProtectedLayout>
+              <AttendanceHistory />
+            </HRProtectedLayout>
+          }
+        />
+        <Route
+          path="/hr/attendance-report"
+          element={
+            <HRProtectedLayout>
+              <AttendanceReport />
+            </HRProtectedLayout>
+          }
+        />
+        <Route
+          path="/attendance/add"
+          element={
+            <HRProtectedLayout>
+              <AddAttendanceForm />
+            </HRProtectedLayout>
+          }
+        />
+
+        {/* ✅ Employee Routes */}
         <Route
           path="/dashboard"
           element={
@@ -99,19 +160,9 @@ const App = () => {
             </EmployeeProtectedLayout>
           }
         />
-
-        {/* ✅ HR Routes */}
-        <Route path="/HRDashboard" element={<HRDashboard />} />
-        <Route path="/AddEmployeeForm" element={<AddEmployeeForm />} />
-
-        {/* ✅ HR Attendance Management Routes */}
-        <Route path="/hr/attendance-list" element={<AttendanceList />} />
-        <Route path="/hr/attendance-history" element={<AttendanceHistory />} />
-        <Route path="/hr/attendance-report" element={<AttendanceReport />} />
-        <Route path="/attendance/add" element={<AddAttendanceForm />} />
       </Routes>
 
-      {/* ✅ Toast Notification Component */}
+      {/* ✅ Toast Notification */}
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
     </div>
   );
