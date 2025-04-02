@@ -3,10 +3,8 @@ import mongoose from "mongoose";
 const LeaveSchema = new mongoose.Schema(
   {
     leaveType: { type: String, required: true },
-    fromDate: { type: Date, required: true },
-    toDate: { type: Date, required: true },
-    description: { type: String, required: true },
-    status: { type: String, default: "Pending" }, // Default status is "Pending"
+    days: { type: Number, required: true }, // ✅ Changed from 'fromDate' and 'toDate' to 'days'
+    status: { type: String, enum: ["Active", "Inactive"], default: "Active" }, // ✅ Status handling
   },
   { timestamps: true }
 );

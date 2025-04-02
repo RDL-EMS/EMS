@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem } from "@mui/material";
-import { Menu as MenuIcon, Notifications, AccountCircle } from "@mui/icons-material";
+import { AppBar, Toolbar, Menu, MenuItem } from "@mui/material";
 
 const HRNav = ({ handleSidebarToggle }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -14,20 +13,8 @@ const HRNav = ({ handleSidebarToggle }) => {
   };
 
   return (
-    <AppBar position="fixed" sx={{ bgcolor: "#33354A" }}>
+    <AppBar position="fixed" elevation={0} sx={{ backgroundColor: "transparent", boxShadow: "none" }}>
       <Toolbar>
-        <IconButton edge="start" color="inherit" onClick={handleSidebarToggle} sx={{ mr: 2 }}>
-          <MenuIcon />
-        </IconButton>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          HR Dashboard
-        </Typography>
-        <IconButton color="inherit">
-          <Notifications />
-        </IconButton>
-        <IconButton color="inherit" onClick={handleProfileMenuOpen}>
-          <AccountCircle />
-        </IconButton>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleProfileMenuClose}>
           <MenuItem onClick={handleProfileMenuClose}>Edit Profile</MenuItem>
           <MenuItem onClick={handleProfileMenuClose}>Change Password</MenuItem>

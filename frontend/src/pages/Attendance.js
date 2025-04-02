@@ -3,11 +3,10 @@ import {
   Box, TextField, Button, Typography, Table, TableBody, 
   TableCell, TableContainer, TableHead, TableRow, Paper, Grid 
 } from "@mui/material";
-import Layout from "../components/Layout/Layout";  
 
 const Attendance = ({ onAttendanceUpdate }) => {
-  const [signInID, setSignInID] = useState("");  // 🔹 Separate state for Sign-In
-  const [signOutID, setSignOutID] = useState(""); // 🔹 Separate state for Sign-Out
+  const [signInID, setSignInID] = useState("");
+  const [signOutID, setSignOutID] = useState("");
   const [attendanceRecords, setAttendanceRecords] = useState([]);
 
   useEffect(() => {
@@ -15,17 +14,9 @@ const Attendance = ({ onAttendanceUpdate }) => {
     setAttendanceRecords(storedRecords);
   }, []);
 
-  // ✅ Get formatted date
-  const getCurrentDate = () => {
-    return new Date().toLocaleDateString(); // MM/DD/YYYY
-  };
+  const getCurrentDate = () => new Date().toLocaleDateString();
+  const getCurrentTime = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
 
-  // ✅ Get formatted time
-  const getCurrentTime = () => {
-    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-  };
-
-  // ✅ Sign In Function
   const handleSignIn = () => {
     if (!signInID.trim()) {
       alert("Enter Employee ID for Sign-In!");
@@ -48,11 +39,9 @@ const Attendance = ({ onAttendanceUpdate }) => {
       onAttendanceUpdate(updatedRecords);
     }
 
-    console.log("Signed In: ", newRecord);
-    setSignInID(""); // ✅ Reset Sign-In input after sign-in
+    setSignInID("");
   };
 
-  // ✅ Sign Out Function
   const handleSignOut = () => {
     if (!signOutID.trim()) {
       alert("Enter Employee ID for Sign-Out!");
@@ -80,94 +69,83 @@ const Attendance = ({ onAttendanceUpdate }) => {
       onAttendanceUpdate(updatedRecords);
     }
 
-    console.log("Signed Out: ", signOutID);
-    setSignOutID(""); // ✅ Reset Sign-Out input after sign-out
+    setSignOutID("");
   };
 
   return (
-    <Layout>
-      <Box sx={{ p: 4, ml: -20, transition: "all 0.3s ease-in-out" }}>
-
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          Employee Attendance
-        </Typography>
-
-        <Grid container spacing={2}>
-          {/* Sign-In Section */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, textAlign: "center" }}>
-              <Typography variant="h6">Employee Time-Book (Sign-In)</Typography>
-              <TextField
-                label="Enter Employee ID"
-                variant="outlined"
-                value={signInID}  // ✅ Linked to Sign-In Only
-                onChange={(e) => setSignInID(e.target.value)}
-                fullWidth
-                sx={{ mb: 2 }}
-              />
-              <Button variant="contained" color="success" fullWidth onClick={handleSignIn}>
-                SIGN IN
-              </Button>
-            </Paper>
-          </Grid>
-
-          {/* Sign-Out Section */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, textAlign: "center" }}>
-              <Typography variant="h6">Employee Time-Book (Sign-Out)</Typography>
-              <TextField
-                label="Enter Employee ID"
-                variant="outlined"
-                value={signOutID} // ✅ Linked to Sign-Out Only
-                onChange={(e) => setSignOutID(e.target.value)}
-                fullWidth
-                sx={{ mb: 2 }}
-              />
-              <Button variant="contained" color="error" fullWidth onClick={handleSignOut}>
-                SIGN OUT
-              </Button>
-            </Paper>
-          </Grid>
+    <Box sx={{ ml: 5, p: 10, transition: "all 0.3s ease-in-out" }}>
+      <Typography variant="h5" sx={{ mb: 2 }}>Employee Attendance</Typography>
+      
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, textAlign: "center" }}>
+            <Typography variant="h6">Employee Time-Book (Sign-In)</Typography>
+            <TextField
+              label="Enter Employee ID"
+              variant="outlined"
+              value={signInID}
+              onChange={(e) => setSignInID(e.target.value)}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <Button variant="contained" color="success" fullWidth onClick={handleSignIn}>
+              SIGN IN
+            </Button>
+          </Paper>
         </Grid>
 
-        {/* Attendance History Table */}
-        <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>
-          Today Attendance History
-        </Typography>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#3f51b5", color: "white" }}>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>SN</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Employee ID</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Date</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Sign In Time</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Sign Out Time</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {attendanceRecords.length > 0 ? (
-                attendanceRecords.map((record, index) => (
-                  <TableRow key={record.id}> 
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{record.employeeID}</TableCell>
-                    <TableCell>{record.date}</TableCell>
-                    <TableCell>{record.signInTime}</TableCell>
-                    <TableCell>{record.signOutTime || "Not Signed Out"}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    No records available
-                  </TableCell>
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, textAlign: "center" }}>
+            <Typography variant="h6">Employee Time-Book (Sign-Out)</Typography>
+            <TextField
+              label="Enter Employee ID"
+              variant="outlined"
+              value={signOutID}
+              onChange={(e) => setSignOutID(e.target.value)}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <Button variant="contained" color="error" fullWidth onClick={handleSignOut}>
+              SIGN OUT
+            </Button>
+          </Paper>
+        </Grid>
+      </Grid>
+
+      <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>Today Attendance History</Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: "#3f51b5", color: "white" }}>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>SN</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>Employee ID</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>Date</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>Sign In Time</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>Sign Out Time</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {attendanceRecords.length > 0 ? (
+              attendanceRecords.map((record, index) => (
+                <TableRow key={record.id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{record.employeeID}</TableCell>
+                  <TableCell>{record.date}</TableCell>
+                  <TableCell>{record.signInTime}</TableCell>
+                  <TableCell>{record.signOutTime || "Not Signed Out"}</TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-    </Layout>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  No records available
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 };
 

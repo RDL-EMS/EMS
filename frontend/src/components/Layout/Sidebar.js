@@ -3,12 +3,13 @@ import { Box, Typography, Divider, IconButton, Tooltip, Button } from "@mui/mate
 import { Menu, Dashboard, Book, AccessTime, ChevronLeft, Logout } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 
-const Sidebar = ({ isOpen, setIsOpen }) => { // ✅ Ensure setIsOpen is received
+const Sidebar = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
 
+  // ✅ Ensure toggle works properly
   const toggleSidebar = () => {
-    if (typeof setIsOpen === "function") { // ✅ Prevent errors if setIsOpen is undefined
-      setIsOpen(!isOpen);
+    if (typeof setIsOpen === "function") {
+      setIsOpen((prev) => !prev);
     } else {
       console.error("setIsOpen is not a function");
     }
@@ -30,13 +31,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => { // ✅ Ensure setIsOpen is received
         transition: "width 0.3s ease-in-out",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden",
+        overflowX: "hidden",
         zIndex: 1300,
         top: 0,
         left: 0,
       }}
     >
-      {/* CSO Dashboard Title and Toggle Button */}
+      {/* ✅ Sidebar Header & Toggle Button */}
       <Box
         sx={{
           display: "flex",
@@ -58,14 +59,16 @@ const Sidebar = ({ isOpen, setIsOpen }) => { // ✅ Ensure setIsOpen is received
 
       <Divider sx={{ bgcolor: "gray" }} />
 
-      {/* Sidebar Items */}
+      {/* ✅ Sidebar Menu Items */}
       <Box sx={{ flexGrow: 1, p: 1 }}>
         <SidebarItem icon={<Dashboard />} label="Dashboard" to="/cso-dashboard" isOpen={isOpen} />
         <SidebarItem icon={<Book />} label="Time Book" to="/time-book" isOpen={isOpen} />
         <SidebarItem icon={<AccessTime />} label="Attendance" to="/cso/attendance" isOpen={isOpen} />
       </Box>
 
-      {/* Logout Button */}
+      <Divider sx={{ bgcolor: "gray" }} />
+
+      {/* ✅ Logout Button */}
       <Box sx={{ p: 2 }}>
         <Button
           variant="contained"
@@ -73,6 +76,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => { // ✅ Ensure setIsOpen is received
           fullWidth
           startIcon={<Logout />}
           onClick={handleLogout}
+          sx={{
+            display: "flex",
+            justifyContent: isOpen ? "flex-start" : "center",
+          }}
         >
           {isOpen ? "LOG OUT" : ""}
         </Button>
@@ -81,6 +88,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => { // ✅ Ensure setIsOpen is received
   );
 };
 
+// ✅ Sidebar Item Component
 const SidebarItem = ({ icon, label, to, isOpen }) => (
   <Tooltip title={!isOpen ? label : ""} placement="right">
     <Box
@@ -89,8 +97,8 @@ const SidebarItem = ({ icon, label, to, isOpen }) => (
       sx={{
         display: "flex",
         alignItems: "center",
-        mb: 3,
-        p: 2,
+        mb: 2,
+        p: 1.5,
         borderRadius: 1,
         textDecoration: "none",
         color: "white",
