@@ -11,7 +11,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieC
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import HRNav from "../Layout/HRNav.js";
-import HRSidebar from "../Layout/HRsidebar.js";
+import HRSidebar from "../Layout/HRSidebar.js";
 
 const data = [
   { name: "Jan", Present: 100, Absent: 20 },
