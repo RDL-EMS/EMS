@@ -1,31 +1,16 @@
 import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import morgan from "morgan";
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { connectDB, PORT } from "./config/db.js"; // Ensure correct import
-
-import employeeRoutes from "./routes/employeeRoutes.js";
-import attendanceRoutes from "./routes/attendanceRoutes.js";
-import leaveRoutes from "./routes/leaveRoutes.js";
-import Employee from "./models/Employee.js";  // ✅ Correct
-// import departmentRoutes from "./routes/departmentRoutes.js"; // ✅ Ensure this file exists
+import cors from "cors";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 const app = express();
-
+const PORT = process.env.PORT || 5000;
 
 // ✅ Middleware
-app.use(express.json());
 app.use(cors());
-app.use(morgan("dev")); // Logs incoming requests
-app.use("/api/employees", employeeRoutes);
-app.use("/api/attendance", attendanceRoutes);
-app.use("/api/leave", leaveRoutes);
-// app.use("/api/departments", departmentRoutes);
+app.use(express.json()); // Parse JSON data
 
 // ✅ Connect to MongoDB
 mongoose
@@ -42,13 +27,11 @@ mongoose
 // 📌 User Schema (Admin & CSO)
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true }, // ✅ Fix added
+  email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
 });
 
 const UserModel = mongoose.model("User", UserSchema);
-
-
 
 // 📌 Ensure Admin & CSO Users Exist
 const ensureUsersExist = async () => {
@@ -57,7 +40,7 @@ const ensureUsersExist = async () => {
     if (!existingAdmin) {
       await UserModel.create({ 
         username: "admin", 
-        email: "admin@example.com", // ✅ Add a valid email
+        email: "admin@example.com",
         password: "123456" 
       });
       console.log("✅ Admin user created (username: admin, password: 123456)");
@@ -67,27 +50,31 @@ const ensureUsersExist = async () => {
   }
 };
 
-
 // 📌 Login API (Admin & CSO)
 app.post("/api/login", async (req, res) => {
   try {
-      const { username, password } = req.body;
+    const { username, password } = req.body;
 
-      // Check if the username and password match "cso" and "cso123"
-      if (username === "cso" && password === "cso123") {
-          return res.json({ message: "✅ Login successful" });
-      } else {
-          return res.status(401).json({ message: "❌ Invalid username or password" });
-      }
+    if (username === "cso" && password === "cso123") {
+      return res.json({ message: "✅ Login successful" });
+    } else {
+      return res.status(401).json({ message: "❌ Invalid username or password" });
+    }
   } catch (error) {
-      console.error("🚨 Login Error:", error);
-      res.status(500).json({ message: "Server Error", error });
+    console.error("🚨 Login Error:", error);
+    res.status(500).json({ message: "Server Error", error });
   }
 });
 
-
-
-
+// 📌 Leave Schema
+const LeaveSchema = new mongoose.Schema({
+  employeeId: { type: String, required: true },
+  leaveType: { type: String, required: true },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
+  status: { type: String, enum: ["Pending", "Approved", "Rejected"], default: "Pending" },
+});
+const LeaveModel = mongoose.model("Leave", LeaveSchema);
 
 // 📌 Get All Leave Requests
 app.get("/api/leaves", async (req, res) => {
@@ -164,80 +151,85 @@ app.delete("/api/leaves/:id", async (req, res) => {
   }
 });
 
-// 📌 Toggle Leave Status (Active/Inactive)
-app.patch("/api/leaves/:id/toggle-status", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const leave = await LeaveModel.findById(id);
-    if (!leave) return res.status(404).json({ error: "❌ Leave request not found" });
+// 📌 Attendance Schema
+const AttendanceSchema = new mongoose.Schema({
+  employeeId: { type: String, required: true },
+  date: { type: String, required: true },
+  signInTime: { type: String, required: true },
+  signOutTime: { type: String },
+});
 
-    leave.status = leave.status === "Approved" ? "Pending" : "Approved";
-    await leave.save();
-    res.json({ message: `✅ Leave status updated to ${leave.status}` });
+const AttendanceModel = mongoose.model("Attendance", AttendanceSchema);
+
+// 📌 Sign-In API
+app.post("/api/attendance/signin", async (req, res) => {
+  try {
+    const { employeeId } = req.body;
+
+    if (!employeeId.trim()) {
+      return res.status(400).json({ error: "❌ Employee ID is required" });
+    }
+
+    const newAttendance = new AttendanceModel({
+      employeeId,
+      date: new Date().toLocaleDateString(),
+      signInTime: new Date().toLocaleTimeString(),
+      signOutTime: "",
+    });
+
+    await newAttendance.save();
+    res.status(201).json(newAttendance);
   } catch (error) {
-    res.status(500).json({ error: "Server error while updating leave status" });
+    res.status(500).json({ error: "Server error while signing in" });
   }
 });
 
-// ✅ Handle Port Already in Use
+// 📌 Sign-Out API
+app.post("/api/attendance/signout", async (req, res) => {
+  try {
+    const { employeeId } = req.body;
+
+    if (!employeeId.trim()) {
+      return res.status(400).json({ error: "❌ Employee ID is required" });
+    }
+
+    const attendance = await AttendanceModel.findOne({
+      employeeId,
+      date: new Date().toLocaleDateString(),
+      signOutTime: "",
+    });
+
+    if (!attendance) {
+      return res.status(404).json({ error: "❌ No active sign-in found for this Employee ID" });
+    }
+
+    attendance.signOutTime = new Date().toLocaleTimeString();
+    await attendance.save();
+
+    res.json(attendance);
+  } catch (error) {
+    res.status(500).json({ error: "Server error while signing out" });
+  }
+});
+
+// 📌 Get Today's Attendance Records
+app.get("/api/attendance/today", async (req, res) => {
+  try {
+    const todayDate = new Date().toLocaleDateString();
+    const records = await AttendanceModel.find({ date: todayDate });
+    res.json(records);
+  } catch (error) {
+    res.status(500).json({ error: "Server error while fetching attendance" });
+  }
+});
+
+// ✅ Start Server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 }).on("error", (err) => {
   if (err.code === "EADDRINUSE") {
     console.error(`🚨 Port ${PORT} is already in use!`);
   } else {
-    console.error("🚨 Server Error:", err);
-  }
-});
-// Employee Registration Route
-app.post("/api/employees/register", async (req, res) => {
-  try {
-    const { employeeId, email, password } = req.body;
-
-    // Check if employee already exists
-    const existingEmployee = await Employee.findOne({ email });
-    if (existingEmployee) {
-      return res.status(400).json({ success: false, message: "Employee already exists" });
-    }
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create new employee
-    const newEmployee = new Employee({ employeeId, email, password: hashedPassword });
-    await newEmployee.save();
-
-    res.status(201).json({ success: true, message: "Employee registered successfully" });
-  } catch (error) {
-    console.error("❌ Error:", error.message);
-    res.status(500).json({ success: false, message: "Server Error" });
-  }
-});
-// Employee Login Route
-app.post("/api/login", async (req, res) => {
-  const { empid, email } = req.body;
-  
-  try {
-    const employee = await Employee.findOne({
-      EMPiD: empid.trim(),
-      Email: { $regex: new RegExp("^" + email.trim() + "$", "i") }
-    });
-
-    if (!employee) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    // JWT token generation
-    const token = jwt.sign(
-      { empid: employee.EMPiD, email: employee.Email, role: employee.Role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    // Send response
-    res.json({ token, employee });
-  } catch (error) {
-    console.error("Login Error:", error);
-    res.status(500).json({ message: "Server error", error });
+    console.error("🚨 Server Error:", err);
   }
 });

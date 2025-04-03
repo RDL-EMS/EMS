@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Drawer,
   List,
@@ -27,20 +28,31 @@ import {
 
 const drawerWidth = 250;
 
+// Sidebar menu items
 const SidebarItems = [
-  { text: "Dashboard", icon: <Dashboard />, section: "dashboard" },
-  { text: "Department", icon: <Business />, section: "department" },
-  { text: "Leave", icon: <Event />, section: "leave" },
-  { text: "Leave Request", icon: <CheckCircle />, section: "leaveRequest" },
-  { text: "Employee", icon: <Person />, section: "employee" },
-  { text: "Payroll", icon: <MonetizationOn />, section: "payroll" },
-  { text: "Attendance List", icon: <CheckCircle />, section: "attendanceList" },
-  { text: "Attendance History", icon: <History />, section: "attendanceHistory" },
-  { text: "Attendance Report", icon: <BarChart />, section: "attendanceReport" },
-  { text: "Home Page", icon: <Home />, section: "home" },
+  { text: "Dashboard", icon: <Dashboard />, path: "/HRDashboard", section: "dashboard" },
+  { text: "Department", icon: <Business />, path: "/hr/department", section: "department" },
+  { text: "Leave", icon: <Event />, path: "/hr/leave", section: "leave" },
+  { text: "Leave Request", icon: <CheckCircle />, path: "/hr/leave-request", section: "leaveRequest" },
+  { text: "Employee", icon: <Person />, path: "/hr/add-employee", section: "employee" },
+  { text: "Payroll", icon: <MonetizationOn />, path: "/hr/payroll", section: "payroll" },
+  { text: "Attendance List", icon: <CheckCircle />, path: "/hr/attendance-list", section: "attendanceList" },
+  { text: "Attendance History", icon: <History />, path: "/hr/attendance-history", section: "attendanceHistory" },
+  { text: "Attendance Report", icon: <BarChart />, path: "/hr/attendance-report", section: "attendanceReport" },
+  { text: "Home Page", icon: <Home />, path: "/", section: "home" },
 ];
 
 const HRSidebar = ({ sidebarOpen, setSidebarOpen, selectedSection, setSelectedSection }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Handle navigation & close sidebar on small screens
+  const handleNavigation = (path, section) => {
+    navigate(path);
+    setSelectedSection(section);
+    if (window.innerWidth < 768) setSidebarOpen(false);
+  };
+
   return (
     <Drawer
       variant="persistent"
@@ -58,31 +70,28 @@ const HRSidebar = ({ sidebarOpen, setSidebarOpen, selectedSection, setSelectedSe
         },
       }}
     >
-      <Toolbar
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "10px",
-          alignItems: "center",
-        }}
-      >
+      {/* Sidebar Header */}
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between", padding: "10px", alignItems: "center" }}>
         <Typography variant="h6" sx={{ color: "white", fontWeight: "bold" }}>
           HR Panel
         </Typography>
-        <IconButton onClick={() => setSidebarOpen(!sidebarOpen)} sx={{ color: "white" }}>
-          {sidebarOpen ? <Close /> : <Menu />}
-        </IconButton>
+        {setSidebarOpen && (
+          <IconButton onClick={() => setSidebarOpen(false)} sx={{ color: "white" }}>
+            <Close />
+          </IconButton>
+        )}
       </Toolbar>
       <Divider sx={{ backgroundColor: "gray" }} />
 
+      {/* Sidebar Menu Items */}
       <List>
         {SidebarItems.map((item, index) => (
           <ListItem key={index} disablePadding>
             <ListItemButton
-              onClick={() => setSelectedSection(item.section)} // ✅ Updates the selected section
+              onClick={() => handleNavigation(item.path, item.section)}
               sx={{
                 color: "white",
-                background: selectedSection === item.section ? "#44475A" : "inherit",
+                background: location.pathname === item.path ? "#44475A" : "inherit",
                 "&:hover": { background: "#56597D" },
               }}
             >
