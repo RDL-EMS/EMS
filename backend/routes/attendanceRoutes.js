@@ -6,66 +6,34 @@ import {
   updateAttendance,
   deleteAttendance,
   attendanceSummary,
-  getAttendanceHistory,  // ✅ Added missing route
-  getAttendanceReport,   // ✅ Added missing route
+  getAttendanceHistory,
+  getAttendanceReport,
 } from "../controllers/attendanceController.js";
 
 const router = express.Router();
 
-/**
- * @route   POST /api/attendance/add
- * @desc    Mark Attendance
- * @access  Public
- */
+// 📌 Mark Attendance
 router.post("/add", markAttendance);
 
-/**
- * @route   GET /api/attendance/history
- * @desc    Get Past Attendance History
- * @access  Public
- */
-router.get("/history", getAttendanceHistory); // ✅ Fix: Add this route
-
-/**
- * @route   GET /api/attendance/report
- * @desc    Get Attendance Report
- * @access  Public
- */
-router.get("/report", getAttendanceReport); // ✅ Fix: Add this route
-
-/**
- * @route   GET /api/attendance/all
- * @desc    Get All Attendance Records
- * @access  Public
- */
+// 📌 Get All Attendance Records
 router.get("/all", getAllAttendance);
 
-/**
- * @route   GET /api/attendance/:year/employee/:id
- * @desc    Get Attendance for a Specific Employee in a Given Year
- * @access  Public
- */
+// 📌 Get Attendance History
+router.get("/history", getAttendanceHistory);
+
+// 📌 Get Attendance Report
+router.get("/report", getAttendanceReport);
+
+// 📌 Get Employee Attendance for a Specific Year
 router.get("/:year/employee/:id", getEmployeeAttendance);
 
-/**
- * @route   PUT /api/attendance/update/:id
- * @desc    Update an Attendance Record
- * @access  Public
- */
+// 📌 Update Attendance Record
 router.put("/update/:id", updateAttendance);
 
-/**
- * @route   DELETE /api/attendance/delete/:id
- * @desc    Delete an Attendance Record
- * @access  Public
- */
+// 📌 Delete Attendance Record
 router.delete("/delete/:id", deleteAttendance);
 
-/**
- * @route   GET /api/attendance-summary
- * @desc    Get Attendance Summary
- * @access  Public
- */
-router.get("/attendance-summary", attendanceSummary);
+// 📌 Get Attendance Summary
+router.get("/summary", attendanceSummary);
 
 export default router;

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Box, TextField, Button, Typography, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, Paper, Grid 
+import axios from "axios";
+import {
+  Box, TextField, Button, Typography, Table, TableBody,
+  TableCell, TableContainer, TableHead, TableRow, Paper, Grid
 } from "@mui/material";
 
 const Attendance = ({ onAttendanceUpdate }) => {
@@ -10,72 +11,53 @@ const Attendance = ({ onAttendanceUpdate }) => {
   const [attendanceRecords, setAttendanceRecords] = useState([]);
 
   useEffect(() => {
-    const storedRecords = JSON.parse(localStorage.getItem("attendance")) || [];
-    setAttendanceRecords(storedRecords);
+    fetchAttendance();
   }, []);
 
-  const getCurrentDate = () => new Date().toLocaleDateString();
-  const getCurrentTime = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+  const fetchAttendance = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/attendance/today");
+      setAttendanceRecords(response.data);
+      if (onAttendanceUpdate) onAttendanceUpdate(response.data);
+    } catch (error) {
+      console.error("🚨 Error fetching attendance:", error);
+    }
+  };
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     if (!signInID.trim()) {
       alert("Enter Employee ID for Sign-In!");
       return;
     }
 
-    const newRecord = {
-      id: Date.now(),
-      employeeID: signInID,
-      date: getCurrentDate(),
-      signInTime: getCurrentTime(),
-      signOutTime: "",
-    };
-
-    const updatedRecords = [...attendanceRecords, newRecord];
-    setAttendanceRecords(updatedRecords);
-    localStorage.setItem("attendance", JSON.stringify(updatedRecords));
-
-    if (onAttendanceUpdate) {
-      onAttendanceUpdate(updatedRecords);
+    try {
+      await axios.post("http://localhost:5000/api/attendance/signin", { employeeId: signInID });
+      setSignInID("");
+      fetchAttendance();
+    } catch (error) {
+      alert("❌ Sign-In failed! " + error.response?.data?.error);
     }
-
-    setSignInID("");
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     if (!signOutID.trim()) {
       alert("Enter Employee ID for Sign-Out!");
       return;
     }
 
-    let found = false;
-    const updatedRecords = attendanceRecords.map((record) => {
-      if (record.employeeID === signOutID && !record.signOutTime) {
-        found = true;
-        return { ...record, signOutTime: getCurrentTime() };
-      }
-      return record;
-    });
-
-    if (!found) {
-      alert("No matching sign-in found for this Employee ID!");
-      return;
+    try {
+      await axios.post("http://localhost:5000/api/attendance/signout", { employeeId: signOutID });
+      setSignOutID("");
+      fetchAttendance();
+    } catch (error) {
+      alert("❌ Sign-Out failed! " + error.response?.data?.error);
     }
-
-    setAttendanceRecords(updatedRecords);
-    localStorage.setItem("attendance", JSON.stringify(updatedRecords));
-
-    if (onAttendanceUpdate) {
-      onAttendanceUpdate(updatedRecords);
-    }
-
-    setSignOutID("");
   };
 
   return (
     <Box sx={{ ml: 5, p: 10, transition: "all 0.3s ease-in-out" }}>
       <Typography variant="h5" sx={{ mb: 2 }}>Employee Attendance</Typography>
-      
+
       <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3, textAlign: "center" }}>
@@ -127,9 +109,9 @@ const Attendance = ({ onAttendanceUpdate }) => {
           <TableBody>
             {attendanceRecords.length > 0 ? (
               attendanceRecords.map((record, index) => (
-                <TableRow key={record.id}>
+                <TableRow key={record._id}>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>{record.employeeID}</TableCell>
+                  <TableCell>{record.employeeId}</TableCell>
                   <TableCell>{record.date}</TableCell>
                   <TableCell>{record.signInTime}</TableCell>
                   <TableCell>{record.signOutTime || "Not Signed Out"}</TableCell>

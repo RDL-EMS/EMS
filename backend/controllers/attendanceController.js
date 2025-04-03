@@ -1,4 +1,4 @@
-import Employee from "../models/employeeModel.js";
+import Employee from "../models/EmployeeModel.js";
 import Attendance from "../models/attendanceModel.js";
 
 /**
@@ -166,6 +166,24 @@ export const attendanceSummary = async (req, res) => {
       totalRecords, 
       summary 
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error", error: error.message });
+  }
+};
+
+export const getAttendanceReport = async (req, res) => {
+  try {
+    const history = await Attendance.find().sort({ date: -1 }); // Fetch attendance records sorted by date
+    res.status(200).json({ success: true, history });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error", error: error.message });
+  }
+};
+
+export const getAttendanceHistory = async (req, res) => {
+  try {
+    const history = await Attendance.find().sort({ date: -1 }); // Fetch attendance records sorted by date
+    res.status(200).json({ success: true, history });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error", error: error.message });
   }

@@ -3,53 +3,45 @@ import {
   Box, Typography, TextField, Button, Paper, Table, TableHead, TableRow, 
   TableCell, TableBody, TableContainer, CircularProgress, Alert 
 } from "@mui/material";
-import axios from "axios";
 
 const TimeBook = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [attendanceData, setAttendanceData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // ✅ Load attendance from localStorage (removing dummy data)
   useEffect(() => {
-    fetchAllAttendance(); // Load all records initially
+    let storedRecords = JSON.parse(localStorage.getItem("attendance")) || [];
+    
+    // ✅ Remove dummy entries (where empId is missing or "N/A")
+    storedRecords = storedRecords.filter(entry => entry.empId && entry.empId !== "N/A");
+
+    setAttendanceData(storedRecords);
+    setFilteredData(storedRecords); 
   }, []);
 
-  // ✅ Fetch All Attendance Records
-  const fetchAllAttendance = async () => {
-    setLoading(true);
-    setError(""); // Reset error before fetching
-
-    try {
-      const response = await axios.get("http://localhost:5000/api/attendance/all");
-      setAttendanceData(response.data.attendance || []);
-    } catch (error) {
-      console.error("Error fetching attendance data:", error);
-      setError("Failed to load attendance records.");
-    }
-    
-    setLoading(false);
-  };
-
-  // ✅ Fetch Attendance for a Specific Employee
-  const fetchEmployeeAttendance = async () => {
-    if (!searchTerm.trim()) {
-      fetchAllAttendance(); // If no search term, load all data
-      return;
-    }
-
+  // ✅ Handle search function
+  const handleSearch = () => {
     setLoading(true);
     setError("");
 
-    try {
-      const response = await axios.get(`http://localhost:5000/api/attendance/${searchTerm}`);
-      setAttendanceData(response.data.attendance || []);
-    } catch (error) {
-      console.error("Error fetching employee attendance:", error);
-      setError("No records found for this employee ID.");
-      setAttendanceData([]);
+    if (!searchTerm.trim()) {
+      setFilteredData(attendanceData); // Show all records if search is empty
+      setLoading(false);
+      return;
     }
-    
+
+    const results = attendanceData.filter((entry) =>
+      entry.empId && entry.empId.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (results.length === 0) {
+      setError("No records found for this Employee ID.");
+    }
+
+    setFilteredData(results);
     setLoading(false);
   };
 
@@ -70,7 +62,7 @@ const TimeBook = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Button variant="contained" color="primary" onClick={fetchEmployeeAttendance}>
+          <Button variant="contained" color="primary" onClick={handleSearch}>
             Search
           </Button>
         </Box>
@@ -99,18 +91,18 @@ const TimeBook = () => {
                   <CircularProgress size={24} />
                 </TableCell>
               </TableRow>
-            ) : attendanceData.length === 0 ? (
+            ) : filteredData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} align="center">No records found</TableCell>
               </TableRow>
             ) : (
-              attendanceData.map((entry, index) => (
-                <TableRow key={entry._id} sx={{ "&:hover": { bgcolor: "#f5f5f5" } }}>
+              filteredData.map((entry, index) => (
+                <TableRow key={index} sx={{ "&:hover": { bgcolor: "#f5f5f5" } }}>
                   <TableCell>#{index + 1}</TableCell>
                   <TableCell>{entry.empId || "N/A"}</TableCell>
                   <TableCell>{entry.date || "N/A"}</TableCell>
                   <TableCell>{entry.punchIn || "N/A"}</TableCell>
-                  <TableCell sx={{ color: entry.punchOut === "Active" ? "green" : "black" }}>
+                  <TableCell sx={{ color: entry.punchOut ? "black" : "red" }}>
                     {entry.punchOut || "Not Punched Out"}
                   </TableCell>
                 </TableRow>
