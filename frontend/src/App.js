@@ -20,7 +20,7 @@ import EmployeeAttendanceHistory from "./components/Employee/EmployeeAttendanceH
 import HRDashboard from "./components/Dashboard/HRDashboard";
 import AddEmployeeForm from "./components/HRPanel/AddEmployeeForm";
 import DepartmentPage from "./components/HRPanel/Department";
-import LeaveManagement from "./components/HRPanel/LeaveManagement"; // ✅ Import Leave Management
+import LeaveManagement from "./components/HRPanel/LeaveManagement";
 
 // ✅ Attendance Management (HR)
 import AddAttendanceForm from "./components/Attendance/AddAttendanceForm";

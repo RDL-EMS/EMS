@@ -25,7 +25,7 @@ import {
   CssBaseline,
 } from "@mui/material";
 import { Edit, Add, Close } from "@mui/icons-material";
-import HRSidebar from "../Layout/HRSidebar"; 
+import HRSidebar from "../Layout/HRSidebar";
 import HRNav from "../Layout/HRNav";
 
 const Department = () => {
@@ -34,12 +34,19 @@ const Department = () => {
   const [openModal, setOpenModal] = useState(false);
   const [newDepartment, setNewDepartment] = useState({ name: "", status: "Active" });
 
-  // ✅ Fetch departments from API
+  // ✅ Fetch Departments from API
+  const fetchDepartments = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/departments");
+      const data = await res.json();
+      setDepartments(data);
+    } catch (err) {
+      console.error("🚨 Error fetching departments:", err);
+    }
+  };
+
   useEffect(() => {
-    fetch("http://localhost:5000/api/departments")
-      .then((res) => res.json())
-      .then((data) => setDepartments(data))
-      .catch((err) => console.error("Error fetching departments:", err));
+    fetchDepartments();
   }, []);
 
   // ✅ Handle Input Change
@@ -48,34 +55,52 @@ const Department = () => {
   };
 
   // ✅ Handle Add Department
-  const handleAddDepartment = () => {
-    fetch("http://localhost:5000/api/departments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newDepartment),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setDepartments([...departments, data]); 
-        setOpenModal(false);
-        setNewDepartment({ name: "", status: "Active" }); 
-      })
-      .catch((err) => console.error("Error adding department:", err));
+  const handleAddDepartment = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/departments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newDepartment),
+      });
+      const data = await res.json();
+      setDepartments([...departments, data]);
+      setOpenModal(false);
+      setNewDepartment({ name: "", status: "Active" });
+    } catch (err) {
+      console.error("🚨 Error adding department:", err);
+    }
+  };
+
+  // ✅ Handle Status Change
+  const handleStatusChange = async (deptId, newStatus) => {
+    try {
+      await fetch(`http://localhost:5000/api/departments/${deptId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      // ✅ Update UI after successful status change
+      setDepartments((prev) =>
+        prev.map((dept) => (dept.id === deptId ? { ...dept, status: newStatus } : dept))
+      );
+    } catch (err) {
+      console.error("🚨 Error updating department status:", err);
+    }
   };
 
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      {/* ✅ HR Navbar */}
-      <HRNav handleSidebarToggle={() => setSidebarOpen(!sidebarOpen)} />
-      
+
       {/* ✅ Sidebar */}
       <HRSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       {/* ✅ Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
+        <HRNav handleSidebarToggle={() => setSidebarOpen(!sidebarOpen)} />
         <Toolbar />
-        
+
         {/* ✅ Breadcrumb Navigation */}
         <Breadcrumbs aria-label="breadcrumb">
           <Link to="/hr-dashboard" style={{ textDecoration: "none", color: "#555" }}>
@@ -121,12 +146,7 @@ const Department = () => {
                           <Select
                             value={dept.status}
                             size="small"
-                            onChange={(e) => {
-                              const updatedDepartments = departments.map((d) =>
-                                d.id === dept.id ? { ...d, status: e.target.value } : d
-                              );
-                              setDepartments(updatedDepartments);
-                            }}
+                            onChange={(e) => handleStatusChange(dept.id, e.target.value)}
                           >
                             <MenuItem value="Active">Active</MenuItem>
                             <MenuItem value="Inactive">Inactive</MenuItem>

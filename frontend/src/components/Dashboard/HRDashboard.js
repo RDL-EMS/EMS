@@ -23,42 +23,57 @@ import {
   Cell,
 } from "recharts";
 import axios from "axios";
+
+// ✅ Import Layout Components
 import HRNav from "../Layout/HRNav";
 import HRSidebar from "../Layout/HRSidebar";
+
+// ✅ Import Attendance & HR Components
 import AttendanceList from "../Attendance/AttendanceList";
 import AttendanceHistory from "../Attendance/AttendanceHistory";
 import AttendanceReport from "../Attendance/AttendanceReport";
 import LeaveRequestForm from "../LeaveManagement/LeaveRequestForm";
 import LeaveStatus from "../LeaveManagement/LeaveStatus";
+import AddEmployeeForm from "../HRPanel/AddEmployeeForm";
+
+// ✅ Import Department & Leave Components (Replace with actual components if available)
+const Department = () => <Typography variant="h5">📂 Department Section (Component Here)</Typography>;
+const Leave = () => <Typography variant="h5">📝 Leave Section (Component Here)</Typography>;
 
 const HRDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedSection, setSelectedSection] = useState("dashboard");
-  const [attendanceData, setAttendanceData] = useState({ totalEmployees: 0, monthly: [], today: [] });
+  const [attendanceData, setAttendanceData] = useState({
+    totalEmployees: 0,
+    monthly: [],
+    today: [],
+  });
   const [loading, setLoading] = useState(true);
 
-  // Fetch Attendance Summary
-  const fetchAttendanceData = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get("http://localhost:5000/api/attendance-summary");
-      console.log("✅ Attendance Data:", response.data);
-      setAttendanceData(response.data);
-    } catch (error) {
-      console.error("🚨 Error fetching attendance:", error.response?.data?.message || error.message);
-      alert("Error fetching attendance. Check backend logs.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // ✅ Fetch Attendance Summary
   useEffect(() => {
+    const fetchAttendanceData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get("http://localhost:5000/api/attendance-summary");
+        console.log("✅ Attendance Data:", response.data);
+        setAttendanceData(response.data);
+      } catch (error) {
+        console.error("🚨 Error fetching attendance:", error.response?.data?.message || error.message);
+        alert("Error fetching attendance. Check backend logs.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchAttendanceData();
   }, []);
 
-  // Section Rendering Logic
+  // ✅ Section Rendering Logic
   const renderSection = () => {
     switch (selectedSection) {
+      case "addEmployee":
+        return <AddEmployeeForm />;
       case "attendanceList":
         return <AttendanceList />;
       case "attendanceHistory":
@@ -69,6 +84,10 @@ const HRDashboard = () => {
         return <LeaveRequestForm />;
       case "leaveStatus":
         return <LeaveStatus />;
+      case "department":
+        return <Department />; // ✅ Department Component
+      case "leave":
+        return <Leave />; // ✅ Leave Component
       default:
         return (
           <>
@@ -133,17 +152,26 @@ const HRDashboard = () => {
   return (
     <Box sx={{ display: "flex", backgroundColor: "#F4F7FC", minHeight: "100vh" }}>
       <CssBaseline />
-      <HRNav handleSidebarToggle={() => setSidebarOpen(!sidebarOpen)} />
-      <HRSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
 
-      {/* Main Content */}
+      {/* ✅ Sidebar (Always Visible) */}
+      <HRSidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        selectedSection={selectedSection}
+        setSelectedSection={setSelectedSection}
+      />
+
+      {/* ✅ Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 4 }}>
+        <HRNav handleSidebarToggle={() => setSidebarOpen(!sidebarOpen)} />
         <Toolbar />
+
+        {/* ✅ Title */}
         <Typography variant="h4" sx={{ fontWeight: "bold", color: "#33354A" }}>
-          Welcome to the HR Dashboard
+          HR Dashboard
         </Typography>
 
-        {/* Loading Indicator */}
+        {/* ✅ Loading Indicator */}
         {loading ? (
           <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "50vh" }}>
             <CircularProgress />

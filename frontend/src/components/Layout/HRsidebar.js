@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import {
   Drawer,
   List,
@@ -28,48 +27,37 @@ import {
 
 const drawerWidth = 250;
 
-// Sidebar menu items
 const SidebarItems = [
-  { text: "Dashboard", icon: <Dashboard />, path: "/hr-dashboard" },
-  { text: "Department", icon: <Business />, path: "/hr/department" },
-  { text: "Leave", icon: <Event />, path: "/hr/leave" },
-  { text: "Leave Request", icon: <CheckCircle />, path: "/hr/leave-request" },
-  { text: "Employee", icon: <Person />, path: "/hr/employee" },
-  { text: "Payroll", icon: <MonetizationOn />, path: "/hr/payroll" },
-  { text: "Attendance List", icon: <CheckCircle />, path: "/hr/attendance-list" },
-  { text: "Attendance History", icon: <History />, path: "/hr/attendance-history" },
-  { text: "Attendance Report", icon: <BarChart />, path: "/hr/attendance-report" },
-  { text: "Home Page", icon: <Home />, path: "/" },
+  { text: "Dashboard", icon: <Dashboard />, section: "dashboard" },
+  { text: "Department", icon: <Business />, section: "department" },
+  { text: "Leave", icon: <Event />, section: "leave" },
+  { text: "Leave Request", icon: <CheckCircle />, section: "leaveRequest" },
+  { text: "Employee", icon: <Person />, section: "employee" },
+  { text: "Payroll", icon: <MonetizationOn />, section: "payroll" },
+  { text: "Attendance List", icon: <CheckCircle />, section: "attendanceList" },
+  { text: "Attendance History", icon: <History />, section: "attendanceHistory" },
+  { text: "Attendance Report", icon: <BarChart />, section: "attendanceReport" },
+  { text: "Home Page", icon: <Home />, section: "home" },
 ];
 
-const HRSidebar = ({ sidebarOpen, setSidebarOpen }) => {
-  const navigate = useNavigate();
-  const location = useLocation(); // ✅ Get current path for active highlighting
-
-  // Handle navigation & close sidebar on mobile
-  const handleNavigation = (path) => {
-    navigate(path);
-    if (window.innerWidth < 768 && setSidebarOpen) setSidebarOpen(false); // ✅ Auto-close on small screens
-  };
-
+const HRSidebar = ({ sidebarOpen, setSidebarOpen, selectedSection, setSelectedSection }) => {
   return (
     <Drawer
-      variant="permanent"
+      variant="persistent"
+      open={sidebarOpen}
       sx={{
         width: sidebarOpen ? drawerWidth : 0,
         flexShrink: 0,
         transition: "width 0.3s ease-in-out",
         "& .MuiDrawer-paper": {
-          width: sidebarOpen ? drawerWidth : 0,
+          width: drawerWidth,
           background: "#1E1E2F",
           color: "white",
           transition: "width 0.3s ease-in-out",
           overflowX: "hidden",
         },
       }}
-      open={sidebarOpen}
     >
-      {/* Sidebar Header */}
       <Toolbar
         sx={{
           display: "flex",
@@ -81,23 +69,20 @@ const HRSidebar = ({ sidebarOpen, setSidebarOpen }) => {
         <Typography variant="h6" sx={{ color: "white", fontWeight: "bold" }}>
           HR Panel
         </Typography>
-        {setSidebarOpen && (
-          <IconButton onClick={() => setSidebarOpen(false)} sx={{ color: "white" }}>
-            <Close />
-          </IconButton>
-        )}
+        <IconButton onClick={() => setSidebarOpen(!sidebarOpen)} sx={{ color: "white" }}>
+          {sidebarOpen ? <Close /> : <Menu />}
+        </IconButton>
       </Toolbar>
       <Divider sx={{ backgroundColor: "gray" }} />
 
-      {/* Sidebar Menu Items */}
       <List>
         {SidebarItems.map((item, index) => (
           <ListItem key={index} disablePadding>
             <ListItemButton
-              onClick={() => handleNavigation(item.path)}
+              onClick={() => setSelectedSection(item.section)} // ✅ Updates the selected section
               sx={{
                 color: "white",
-                background: location.pathname === item.path ? "#44475A" : "inherit", // ✅ Highlight active item
+                background: selectedSection === item.section ? "#44475A" : "inherit",
                 "&:hover": { background: "#56597D" },
               }}
             >
