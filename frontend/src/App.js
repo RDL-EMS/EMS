@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/Home";
 import CSOPanel from "./Auth/CSOPanel";
 import CSODashboard from "./components/Dashboard/CSODashboard";
-import CSOAttendance from "./pages/Attendance"; 
+import CSOAttendance from "./pages/Attendance";
 import TimeBook from "./pages/TimeBook";
 
 import EmployeeLogin from "./components/Employee/EmployeeLogin";
@@ -19,8 +19,9 @@ import EmployeeAttendanceHistory from "./components/Employee/EmployeeAttendanceH
 // ✅ HR Components
 import HRDashboard from "./components/Dashboard/HRDashboard";
 import AddEmployeeForm from "./components/HRPanel/AddEmployeeForm";
-import DepartmentPage from "./components/HRPanel/Department";
-import LeaveManagement from "./components/HRPanel/LeaveManagement"; // ✅ Import Leave Management
+import LeaveManagement from "./components/HRPanel/LeaveManagement";
+import HRLogin from "./components/HRPanel/HRLogin";
+import AddDepartmentForm from "./components/HRPanel/AddDepartmentForm";
 
 // ✅ Attendance Management (HR)
 import AddAttendanceForm from "./components/Attendance/AddAttendanceForm";
@@ -28,9 +29,9 @@ import AttendanceHistory from "./components/Attendance/AttendanceHistory";
 import AttendanceList from "./components/Attendance/AttendanceList";
 import AttendanceReport from "./components/Attendance/AttendanceReport";
 
-// ✅ Layouts
+// ✅ Layouts (Protected Routes)
 import CSOProtectedLayout from "./components/Layout/CSOProtectedLayout";
-import HRProtectedLayout from "./components/Layout/HRProtectedLayout";  
+import HRProtectedLayout from "./components/Layout/HRProtectedLayout";
 import EmployeeProtectedLayout from "./components/Layout/EmployeeProtectedLayout";
 
 const App = () => {
@@ -41,100 +42,135 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/cso" element={<CSOPanel />} />
         <Route path="/employee-login" element={<EmployeeLogin />} />
+        <Route path="/HRLogin" element={<HRLogin />} />
 
         {/* ✅ CSO Routes (Protected) */}
-        <Route path="/cso-dashboard" element={
-          <CSOProtectedLayout>
-            <CSODashboard />
-          </CSOProtectedLayout>
-        } />
-        
-        <Route path="/cso/attendance" element={
-          <CSOProtectedLayout>
-            <CSOAttendance />
-          </CSOProtectedLayout>
-        } />
-
-        <Route path="/time-book" element={
-          <CSOProtectedLayout>
-            <TimeBook />
-          </CSOProtectedLayout>
-        } />
+        <Route
+          path="/cso-dashboard"
+          element={
+            <CSOProtectedLayout>
+              <CSODashboard />
+            </CSOProtectedLayout>
+          }
+        />
+        <Route
+          path="/cso/attendance"
+          element={
+            <CSOProtectedLayout>
+              <CSOAttendance />
+            </CSOProtectedLayout>
+          }
+        />
+        <Route
+          path="/time-book"
+          element={
+            <CSOProtectedLayout>
+              <TimeBook />
+            </CSOProtectedLayout>
+          }
+        />
 
         {/* ✅ HR Routes (Protected) */}
-        <Route path="/hr-dashboard" element={
-          <HRProtectedLayout>  
-            <HRDashboard />
-          </HRProtectedLayout>
-        } />
-        
-        <Route path="/hr/add-employee" element={
-          <HRProtectedLayout>
-            <AddEmployeeForm />
-          </HRProtectedLayout>
-        } />
-        
-        <Route path="/hr/department" element={
-          <HRProtectedLayout>
-            <DepartmentPage />
-          </HRProtectedLayout>
-        } />
-
-        <Route path="/hr/leave" element={
-          <HRProtectedLayout>
-            <LeaveManagement />
-          </HRProtectedLayout>
-        } />
+        <Route
+          path="/HRDashboard"
+          element={
+            <HRProtectedLayout>
+              <HRDashboard />
+            </HRProtectedLayout>
+          }
+        />
+        <Route
+          path="/hr/add-employee"
+          element={
+            <HRProtectedLayout>
+              <AddEmployeeForm />
+            </HRProtectedLayout>
+          }
+        />
+        <Route
+          path="/hr/department"
+          element={
+            <HRProtectedLayout>
+              <AddDepartmentForm />
+            </HRProtectedLayout>
+          }
+        />
+        <Route
+          path="/hr/leave"
+          element={
+            <HRProtectedLayout>
+              <LeaveManagement />
+            </HRProtectedLayout>
+          }
+        />
 
         {/* ✅ HR Attendance Management */}
-        <Route path="/hr/attendance-list" element={
-          <HRProtectedLayout>
-            <AttendanceList />
-          </HRProtectedLayout>
-        } />
+        <Route
+          path="/hr/attendance-list"
+          element={
+            <HRProtectedLayout>
+              <AttendanceList />
+            </HRProtectedLayout>
+          }
+        />
+        <Route
+          path="/hr/attendance-history"
+          element={
+            <HRProtectedLayout>
+              <AttendanceHistory />
+            </HRProtectedLayout>
+          }
+        />
+        <Route
+          path="/hr/attendance-report"
+          element={
+            <HRProtectedLayout>
+              <AttendanceReport />
+            </HRProtectedLayout>
+          }
+        />
+        <Route
+          path="/attendance/add"
+          element={
+            <HRProtectedLayout>
+              <AddAttendanceForm />
+            </HRProtectedLayout>
+          }
+        />
 
-        <Route path="/hr/attendance-history" element={
-          <HRProtectedLayout>
-            <AttendanceHistory />
-          </HRProtectedLayout>
-        } />
-
-        <Route path="/hr/attendance-report" element={
-          <HRProtectedLayout>
-            <AttendanceReport />
-          </HRProtectedLayout>
-        } />
-
-        <Route path="/attendance/add" element={
-          <HRProtectedLayout>
-            <AddAttendanceForm />
-          </HRProtectedLayout>
-        } />
-
-        {/* ✅ Employee Routes */}
-        <Route path="/dashboard" element={
-          <EmployeeProtectedLayout>
-            <EmployeeDashboard />
-          </EmployeeProtectedLayout>
-        } />
-
-        <Route path="/leave-history" element={
-          <EmployeeProtectedLayout>
-            <EmployeeLeaveHistory />
-          </EmployeeProtectedLayout>
-        } />
-
-        <Route path="/change-password" element={
-          <EmployeeProtectedLayout>
-            <EmployeeChangePassword />
-          </EmployeeProtectedLayout>
-        } />
-
-        <Route path="/attendance-history" element={
-          <EmployeeProtectedLayout>
-            <EmployeeAttendanceHistory />
-          </EmployeeProtectedLayout>
-        } />
+        {/* ✅ Employee Routes (Protected) */}
+        <Route
+          path="/dashboard"
+          element={
+            <EmployeeProtectedLayout>
+              <EmployeeDashboard />
+            </EmployeeProtectedLayout>
+          }
+        />
+        <Route
+          path="/leave-history"
+          element={
+            <EmployeeProtectedLayout>
+              <EmployeeLeaveHistory />
+            </EmployeeProtectedLayout>
+          }
+        />
+        <Route
+          path="/change-password"
+          element={
+            <EmployeeProtectedLayout>
+              <EmployeeChangePassword />
+            </EmployeeProtectedLayout>
+          }
+        />
+        <Route
+          path="/attendance-history"
+          element={
+            <EmployeeProtectedLayout>
+              <EmployeeAttendanceHistory />
+            </EmployeeProtectedLayout>
+          }
+        />
       </Routes>
 
       {/* ✅ Toast Notification */}

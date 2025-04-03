@@ -30,54 +30,48 @@ const drawerWidth = 250;
 
 // Sidebar menu items
 const SidebarItems = [
-  { text: "Dashboard", icon: <Dashboard />, path: "/hr-dashboard" },
-  { text: "Department", icon: <Business />, path: "/hr/department" },
-  { text: "Leave", icon: <Event />, path: "/hr/leave" },
-  { text: "Leave Request", icon: <CheckCircle />, path: "/hr/leave-request" },
-  { text: "Employee", icon: <Person />, path: "/hr/employee" },
-  { text: "Payroll", icon: <MonetizationOn />, path: "/hr/payroll" },
-  { text: "Attendance List", icon: <CheckCircle />, path: "/hr/attendance-list" },
-  { text: "Attendance History", icon: <History />, path: "/hr/attendance-history" },
-  { text: "Attendance Report", icon: <BarChart />, path: "/hr/attendance-report" },
-  { text: "Home Page", icon: <Home />, path: "/" },
+  { text: "Dashboard", icon: <Dashboard />, path: "/HRDashboard", section: "dashboard" },
+  { text: "Department", icon: <Business />, path: "/hr/department", section: "department" },
+  { text: "Leave", icon: <Event />, path: "/hr/leave", section: "leave" },
+  { text: "Leave Request", icon: <CheckCircle />, path: "/hr/leave-request", section: "leaveRequest" },
+  { text: "Employee", icon: <Person />, path: "/hr/add-employee", section: "employee" },
+  { text: "Payroll", icon: <MonetizationOn />, path: "/hr/payroll", section: "payroll" },
+  { text: "Attendance List", icon: <CheckCircle />, path: "/hr/attendance-list", section: "attendanceList" },
+  { text: "Attendance History", icon: <History />, path: "/hr/attendance-history", section: "attendanceHistory" },
+  { text: "Attendance Report", icon: <BarChart />, path: "/hr/attendance-report", section: "attendanceReport" },
+  { text: "Home Page", icon: <Home />, path: "/", section: "home" },
 ];
 
-const HRSidebar = ({ sidebarOpen, setSidebarOpen }) => {
+const HRSidebar = ({ sidebarOpen, setSidebarOpen, selectedSection, setSelectedSection }) => {
   const navigate = useNavigate();
-  const location = useLocation(); // ✅ Get current path for active highlighting
+  const location = useLocation();
 
-  // Handle navigation & close sidebar on mobile
-  const handleNavigation = (path) => {
+  // Handle navigation & close sidebar on small screens
+  const handleNavigation = (path, section) => {
     navigate(path);
-    if (window.innerWidth < 768 && setSidebarOpen) setSidebarOpen(false); // ✅ Auto-close on small screens
+    setSelectedSection(section);
+    if (window.innerWidth < 768) setSidebarOpen(false);
   };
 
   return (
     <Drawer
-      variant="permanent"
+      variant="persistent"
+      open={sidebarOpen}
       sx={{
         width: sidebarOpen ? drawerWidth : 0,
         flexShrink: 0,
         transition: "width 0.3s ease-in-out",
         "& .MuiDrawer-paper": {
-          width: sidebarOpen ? drawerWidth : 0,
+          width: drawerWidth,
           background: "#1E1E2F",
           color: "white",
           transition: "width 0.3s ease-in-out",
           overflowX: "hidden",
         },
       }}
-      open={sidebarOpen}
     >
       {/* Sidebar Header */}
-      <Toolbar
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "10px",
-          alignItems: "center",
-        }}
-      >
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between", padding: "10px", alignItems: "center" }}>
         <Typography variant="h6" sx={{ color: "white", fontWeight: "bold" }}>
           HR Panel
         </Typography>
@@ -94,10 +88,10 @@ const HRSidebar = ({ sidebarOpen, setSidebarOpen }) => {
         {SidebarItems.map((item, index) => (
           <ListItem key={index} disablePadding>
             <ListItemButton
-              onClick={() => handleNavigation(item.path)}
+              onClick={() => handleNavigation(item.path, item.section)}
               sx={{
                 color: "white",
-                background: location.pathname === item.path ? "#44475A" : "inherit", // ✅ Highlight active item
+                background: location.pathname === item.path ? "#44475A" : "inherit",
                 "&:hover": { background: "#56597D" },
               }}
             >

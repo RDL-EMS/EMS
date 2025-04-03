@@ -68,4 +68,15 @@ router.delete("/delete/:id", deleteAttendance);
  */
 router.get("/attendance-summary", attendanceSummary);
 
+
+
+
+/**
+ * @route   GET /api/attendance/history
+ * @desc    Get Past Attendance History
+ * @access  Public
+ */
+router.get("/history", getAttendanceHistory);
+
+router.get("/report", getAttendanceReport);
 export default router;

@@ -52,25 +52,31 @@ const AddEmployeeForm = () => {
   // Submit form data (Add or Update)
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // ✅ Convert formData to FormData Object
-    const data = new FormData();
-    for (const key in formData) {
-      data.append(key, formData[key]);
+  
+    // ✅ Ensure Profile file is selected
+    if (!formData.Profile) {
+      alert("❌ Please select a profile picture.");
+      return;
     }
-
+  
+    // ✅ Prepare FormData
+    const formDataObj = new FormData();
+    Object.keys(formData).forEach((key) => {
+      formDataObj.append(key, formData[key]);
+    });
+  
+    console.log("🔍 FormData Before Sending:");
+    for (let pair of formDataObj.entries()) {
+      console.log(`${pair[0]}: ${pair[1]}`);
+    }
+  
     try {
-      const response = await axios.post(API_URL, data, {
+      const response = await axios.post("http://localhost:5000/api/employees", formDataObj, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
+  
       if (response.status === 201) {
         alert("✅ Employee added successfully!");
-        
-        // ✅ Refresh employees
-        fetchEmployees();
-
-        // ✅ Clear form fields
         setFormData({
           EMPiD: "",
           Name: "",
@@ -78,14 +84,19 @@ const AddEmployeeForm = () => {
           Address: "",
           Email: "",
           Contact: "",
-          Profile: null,
+          Profile: null, // Reset file input
           Role: "",
         });
       }
     } catch (error) {
+      console.error("❌ Error Response:", error.response?.data);
       alert(error.response?.data?.message || "❌ Failed to save employee.");
     }
   };
+  
+  
+  
+  
 
   // Edit employee data
   const handleEdit = (id) => {
@@ -166,19 +177,20 @@ const AddEmployeeForm = () => {
         <Typography variant="h5" sx={{ mt: 4 }}>Employee List</Typography>
         <TableContainer component={Paper} sx={{ mt: 2 }}>
           <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#333", color: "#fff" }}> {/* ✅ Changed Table Header Color */}
-                <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>EMPiD</TableCell>
-                <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Name</TableCell>
-                <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Join Date</TableCell>
-                <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Address</TableCell>
-                <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Email</TableCell>
-                <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Contact</TableCell>
-                <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Profile</TableCell>
-                <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Role</TableCell>
-                <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
+          <TableHead>
+  <TableRow sx={{ backgroundColor: "#333", color: "#fff" }}>
+    <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>EMPiD</TableCell>
+    <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Name</TableCell>
+    <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Join Date</TableCell>
+    <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Address</TableCell>
+    <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Email</TableCell>
+    <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Contact</TableCell>
+    <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Profile</TableCell>
+    <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Role</TableCell>
+    <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Actions</TableCell>
+  </TableRow>
+</TableHead>
+
             <TableBody>
               {employees.map((emp) => (
                 <TableRow key={emp._id}>

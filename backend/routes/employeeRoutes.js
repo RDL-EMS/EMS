@@ -1,96 +1,101 @@
 import express from "express";
-import nodemailer from "nodemailer";
-import Employee from "../models/EmployeeModel.js"; 
-
+import multer from "multer";
+import Employee from "../models/EmployeeModel.js";
+import jwt from "jsonwebtoken";
 const router = express.Router();
+import nodemailer from "nodemailer";
+import authenticate from "../middleware/authMiddleware.js";  // ✅ Correct path for backend
+// ✅ Configure Multer for file uploads
+const storage = multer.memoryStorage(); // Store in memory (use disk storage if needed)
+const upload = multer({ storage: storage });
 
-// 📌 Nodemailer Setup
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, 
+  service: "gmail",
   auth: {
-    user: "sdswathi790@gmail.com",
-    pass: "tdngpmhracbixlme",
-  },
-  tls: {
-    rejectUnauthorized: false,
+    user: "sdswathi790@gmail.com", // Replace with your email
+    pass: "sboj kyvg dqpx hvkj", // Use App Password for Gmail
   },
 });
 
-// 📌 Get all employees
-router.get("/", async (req, res) => {
-  try {
-    const employees = await Employee.find();
-    res.json(employees);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.post("/", upload.single("Profile"), async (req, res) => {
+  console.log("🔍 Request Body:", req.body);
+  console.log("🔍 Uploaded File:", req.file);
 
-// 📌 Add an Employee (Instant Response & Background Email)
-router.post("/", async (req, res) => {
-  const { EMPiD, Name, Joindate, Address, Email, Contact, Profile, Role } = req.body;
+  const { EMPiD, Name, Joindate, Address, Email, Contact, Role } = req.body;
+  const Profile = req.file ? req.file.buffer.toString("base64") : null; // Convert file to Base64
 
-  // ✅ Validate required fields
+  // ✅ Check for missing fields
   if (!EMPiD || !Name || !Joindate || !Address || !Email || !Contact || !Profile || !Role) {
     return res.status(400).json({ message: "❌ All fields are required." });
   }
 
   try {
-    // ✅ Check for duplicate email
+    // ✅ Ensure Email is not empty before saving
+    if (!Email.trim()) {
+      return res.status(400).json({ message: "❌ Email cannot be empty or null." });
+    }
+
+    // ✅ Check if an employee with this email already exists
     const existingEmployee = await Employee.findOne({ Email });
     if (existingEmployee) {
       return res.status(400).json({ message: "❌ Email already exists. Use a different email." });
     }
 
-    // ✅ Save employee to database
-    const newEmployee = await Employee.create(req.body);
-
-    // ✅ Immediately Send Response (Without Waiting for Email)
-    res.status(201).json({ message: "✅ Employee added successfully!", newEmployee });
-
-    // 📧 Prepare Email Options (Send Email in Background)
+    // ✅ Save the new employee
+    const newEmployee = await Employee.create({
+      EMPiD,
+      Name,
+      Joindate,
+      Address,
+      Email,
+      Contact,
+      Profile,
+      Role,
+    });
     const mailOptions = {
-      from: "sdswathi790@gmail.com",
-      to: newEmployee.Email,
-      subject: "🎉 Welcome to Our Company - Your Employee ID is Created",
-      html: `
-        <p>Dear <strong>${newEmployee.Name}</strong>,</p>
-        <p>Your Employee ID has been successfully created.</p>
-        <p><strong>Employee ID:</strong> ${newEmployee.EMPiD}</p>
-        <p>Welcome to the team! We look forward to working with you.</p>
-        <br/>
-        <p>Best Regards,<br/>HR Team</p>
-      `,
+      from: "your-email@gmail.com",
+      to: Email,
+      subject: "Welcome to Our Company!",
+      text: `Hello ${Name},\n\nYour Employee ID (${EMPiD}) has been created.\nYou can log in using your Employee ID and Email.\n\nBest Regards,\nHR Team`,
     };
 
-    // ✅ Send Email Asynchronously
-    transporter.sendMail(mailOptions).catch(() => {});
+    await transporter.sendMail(mailOptions);
+    res.status(201).json({ message: "✅ Employee added successfully!", newEmployee });
 
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error("❌ Server error:", error);
+    res.status(500).json({ message: "❌ Server error: " + error.message });
   }
 });
 
-// 📌 Update employee by ID
-router.put("/:id", async (req, res) => {
+//Login
+router.post("/login", async (req, res) => {
+  const { employeeID, email } = req.body;
+
   try {
-    const updatedEmployee = await Employee.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updatedEmployee);
+      const employee = await Employee.findOne({ EMPiD: employeeID, Email: email });
+
+      if (!employee) {
+          return res.status(400).json({ message: "❌ Invalid Employee ID or Email" });
+      }
+
+      // ✅ Generate JWT Token
+      const token = jwt.sign(
+          { id: employee._id, EMPiD: employee.EMPiD, email: employee.Email, role: employee.Role },
+          "your-secret-key",  // 🔹 Replace this with a secure key (store in .env)
+          { expiresIn: "1h" } // Token expires in 1 hour
+      );
+
+      console.log("Generated Token:", token);  // ✅ Debugging Step
+
+      res.json({ message: "✅ Login Successful", token });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+      console.error("❌ Error in Login Route:", error);
+      res.status(500).json({ message: "❌ Server Error" });
   }
 });
 
-// 📌 Delete employee by ID
-router.delete("/:id", async (req, res) => {
-  try {
-    await Employee.findByIdAndDelete(req.params.id);
-    res.json({ message: "✅ Employee deleted successfully" });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
+
+
 
 export default router;

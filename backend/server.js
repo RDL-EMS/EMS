@@ -1,17 +1,31 @@
 import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
 import dotenv from "dotenv";
-import bcrypt from "bcrypt"; // ✅ Secure password storage
+import cors from "cors";
+import morgan from "morgan";
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { connectDB, PORT } from "./config/db.js"; // Ensure correct import
+
+import employeeRoutes from "./routes/employeeRoutes.js";
+import attendanceRoutes from "./routes/attendanceRoutes.js";
+import leaveRoutes from "./routes/leaveRoutes.js";
+import Employee from "./models/Employee.js";  // ✅ Correct
+import departmentRoutes from "./routes/departmentRoutes.js"; // ✅ Ensure this file exists
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+
 
 // ✅ Middleware
+app.use(express.json());
 app.use(cors());
-app.use(express.json()); // Parse JSON data
+app.use(morgan("dev")); // Logs incoming requests
+app.use("/api/employees", employeeRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/leave", leaveRoutes);
+app.use("/api/departments", departmentRoutes);
 
 // ✅ Connect to MongoDB
 mongoose
@@ -34,15 +48,7 @@ const UserSchema = new mongoose.Schema({
 
 const UserModel = mongoose.model("User", UserSchema);
 
-// 📌 Leave Schema
-const LeaveSchema = new mongoose.Schema({
-  employeeId: { type: String, required: true },
-  leaveType: { type: String, required: true },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
-  status: { type: String, enum: ["Pending", "Approved", "Rejected"], default: "Pending" },
-});
-const LeaveModel = mongoose.model("Leave", LeaveSchema);
+
 
 // 📌 Ensure Admin & CSO Users Exist
 const ensureUsersExist = async () => {
@@ -181,5 +187,57 @@ app.listen(PORT, () => {
     console.error(`🚨 Port ${PORT} is already in use!`);
   } else {
     console.error("🚨 Server Error:", err);
+  }
+});
+// Employee Registration Route
+app.post("/api/employees/register", async (req, res) => {
+  try {
+    const { employeeId, email, password } = req.body;
+
+    // Check if employee already exists
+    const existingEmployee = await Employee.findOne({ email });
+    if (existingEmployee) {
+      return res.status(400).json({ success: false, message: "Employee already exists" });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new employee
+    const newEmployee = new Employee({ employeeId, email, password: hashedPassword });
+    await newEmployee.save();
+
+    res.status(201).json({ success: true, message: "Employee registered successfully" });
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+});
+// Employee Login Route
+app.post("/api/login", async (req, res) => {
+  const { empid, email } = req.body;
+  
+  try {
+    const employee = await Employee.findOne({
+      EMPiD: empid.trim(),
+      Email: { $regex: new RegExp("^" + email.trim() + "$", "i") }
+    });
+
+    if (!employee) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // JWT token generation
+    const token = jwt.sign(
+      { empid: employee.EMPiD, email: employee.Email, role: employee.Role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Send response
+    res.json({ token, employee });
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(500).json({ message: "Server error", error });
   }
 });
